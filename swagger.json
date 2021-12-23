@@ -2737,7 +2737,6 @@
     },
     "addCompanyTeamMember": {
       "required": [
-        "rfId",
         "first_name",
         "last_name",
         "role",
@@ -2749,9 +2748,6 @@
         "isBuyer"
       ],
       "properties": {
-        "rfId": {
-          "type": "string"
-        },
         "first_name": {
           "type": "string"
         },

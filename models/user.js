@@ -5,9 +5,6 @@ const Schema = mongoose.Schema;
 const User = mongoose.model(
   "User",
   new mongoose.Schema({
-    rfId: {
-      type: String,
-    },
     image_upload: {
       type: String,
     },

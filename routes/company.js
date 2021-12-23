@@ -36,7 +36,7 @@ router.get("/:companyId/members", [authGuard, admin], async (req, res) => {
   })
     .sort("first_name")
     .select(
-      "_id rfId position first_name last_name role isSeller isBuyer email status image_upload"
+      "_id position first_name last_name role isSeller isBuyer email status image_upload"
     );
 
   companyTeamMembers.length <= 0
@@ -191,7 +191,6 @@ router.post("/:companyId/addMember", [authGuard, admin], async (req, res) => {
     } else {
       user = new User(
         _.pick(req.body, [
-          "rfId",
           "first_name",
           "last_name",
           "role",
