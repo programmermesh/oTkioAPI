@@ -1,0 +1,2857 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "OKTIOAPI",
+    "description": "OKTIO API for reverse auctions",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "x-auth-token",
+      "scheme": "bearer",
+      "in": "header"
+    }
+  },
+  "tags": [
+    {
+      "name": "Users",
+      "description": "API for users registration in the system"
+    },
+    {
+      "name": "Auth",
+      "description": "API for authenticating users into the system"
+    },
+    {
+      "name": "Buyer",
+      "description": "API for adding projects, items by a buyer into the system"
+    },
+    {
+      "name": "Seller",
+      "description": "API for sending seller invitation and creating the seller profile in the system"
+    },
+    {
+      "name": "Company",
+      "description": "API for editing company and adding team members profile in the system"
+    },
+    {
+      "name": "Subscription",
+      "description": "API for adding subscription to users in the system"
+    }
+  ],
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/api/users/getAllUsers": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get all users in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get a specific user in the system",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "Get a specific user in the system",
+            "schema": {
+              "$ref": "#/definitions/userId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/updateProfile"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/updateProfile/{userId}": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update user profile in the system",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "update user profile in the system",
+            "schema": {
+              "$ref": "#/definitions/updateProfile"
+            }
+          },
+          {
+            "name": "updateProfile",
+            "in": "body",
+            "description": "update user profile in the system",
+            "schema": {
+              "$ref": "#/definitions/updateProfile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/updateProfile"
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Register a user with a company in the system",
+        "parameters": [
+          {
+            "name": "register",
+            "in": "body",
+            "description": "User that we want to create",
+            "schema": {
+              "$ref": "#/definitions/Register"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/Register"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/changePassword/{userId}": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Change a user's password",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "$ref": "#/definitions/ChangePassword"
+            }
+          },
+          {
+            "name": "new_paaword",
+            "in": "body",
+            "description": "New password",
+            "schema": {
+              "$ref": "#/definitions/ChangePassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        }
+      }
+    },
+    "/api/users/verifyEmail/{confirmationCode}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "User account activation in the system",
+        "parameters": [
+          {
+            "name": "confirmationCode",
+            "in": "path",
+            "description": "User account verification",
+            "schema": {
+              "$ref": "#/definitions/verifyEmail"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/verifyEmail"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/ResendConfirmationCode": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Resend Account Confirmation Code from the system",
+        "parameters": [
+          {
+            "name": "ResendConfirmationCode",
+            "in": "body",
+            "description": "Sending Verification code to user's email from the system",
+            "schema": {
+              "$ref": "#/definitions/ResendConfirmationCode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/ResendConfirmationCode"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/verifyForgetPassword": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Reset user Password on the system",
+        "parameters": [
+          {
+            "name": "forgetPassword",
+            "in": "body",
+            "description": "Sending Verification code to user's email for the forget password",
+            "schema": {
+              "$ref": "#/definitions/verifyForgetPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/verifyForgetPassword"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User login authentication into the system",
+        "parameters": [
+          {
+            "name": "login",
+            "in": "body",
+            "description": "User login authentication into the system",
+            "schema": {
+              "$ref": "#/definitions/auth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/auth"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/resetPassword": {
+      "patch": {
+        "tags": ["Auth"],
+        "summary": "Reset User account password",
+        "parameters": [
+          {
+            "name": "resetPassword",
+            "in": "body",
+            "description": "User password reset",
+            "schema": {
+              "$ref": "#/definitions/resetPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/resetPassword"
+            }
+          }
+        }
+      }
+    },
+    "/api/buyer/item/saveItemAsDraft": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Save a Item as draft for the company in the system",
+        "parameters": [
+          {
+            "name": "saveItemAsDraft",
+            "in": "body",
+            "description": "item to saved as draft",
+            "schema": {
+              "$ref": "#/definitions/saveItemAsDraft"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/saveItemAsDraft"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/saveProjectAsDraft": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Save a Project as draft for the company in the system",
+        "parameters": [
+          {
+            "name": "saveProjectAsDraft",
+            "in": "body",
+            "description": "project to saved as draft",
+            "schema": {
+              "$ref": "#/definitions/saveProjectAsDraft"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/saveProjectAsDraft"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/EditsaveProjectDraft/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a Project draft for the company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "project to be updated",
+            "schema": {
+              "$ref": "#/definitions/EditsaveProjectDraft"
+            }
+          },
+          {
+            "name": "EditsaveProjectDraft",
+            "in": "body",
+            "description": "project to be updated",
+            "schema": {
+              "$ref": "#/definitions/EditsaveProjectDraft"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/EditsaveProjectDraft"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/category/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a category for the company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "category to be updated",
+            "schema": {
+              "$ref": "#/definitions/editCategory"
+            }
+          },
+          {
+            "name": "EditCategory",
+            "in": "body",
+            "description": "category to be updated",
+            "schema": {
+              "$ref": "#/definitions/editCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/item/EditsaveItemDraft/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a Item draft for the company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "item to be updated",
+            "schema": {
+              "$ref": "#/definitions/EditsaveItemDraft"
+            }
+          },
+          {
+            "name": "EditsaveItemDraft",
+            "in": "body",
+            "description": "item to be updated",
+            "schema": {
+              "$ref": "#/definitions/EditsaveItemDraft"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/EditsaveItemDraft"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/addCostCenter": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create a cost center of a company in the system",
+        "parameters": [
+          {
+            "name": "costCenter",
+            "in": "body",
+            "description": "cost center to be created",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/addTag": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create a tag of a company in the system",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "body",
+            "description": "tag to be created",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/addItemsCatGroup": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create an item Category or Group for a company in the system",
+        "parameters": [
+          {
+            "name": "itemData",
+            "in": "body",
+            "description": "item category/group to be created",
+            "schema": {
+              "$ref": "#/definitions/addItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addItemsCatGroup"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/editItemsCatGroup/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit an item Category or Group for a company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of category/group to be edited",
+            "schema": {
+              "$ref": "#/definitions/editItemsCatGroup"
+            }
+          },
+          {
+            "name": "itemData",
+            "in": "body",
+            "description": "item category/group to be edited",
+            "schema": {
+              "$ref": "#/definitions/editItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editItemsCatGroup"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/addSupplierCategory": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create a Category a supplier of a company in the system",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "body",
+            "description": "category to be created",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/{projectId}/addBudget": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add budget for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to add budget to"
+          },
+          {
+            "name": "budget",
+            "in": "body",
+            "description": "budget to be created",
+            "schema": {
+              "$ref": "#/definitions/addBudget"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addBudget"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/editSupplierCategory/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a Category a supplier of a company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of category to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          },
+          {
+            "name": "category",
+            "in": "body",
+            "description": "category to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/editCostCenter/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a Cost Center of a company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of cost center to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          },
+          {
+            "name": "cost center",
+            "in": "body",
+            "description": "cost center to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        }
+      }
+    },
+    "/api/buyer/company/editTag/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a Tag of a company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of cost tag to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "body",
+            "description": "tag to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        }
+      }
+    },
+    "/api/buyer/addProject": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create a Project for the company in the system",
+        "parameters": [
+          {
+            "name": "addProject",
+            "in": "body",
+            "description": "project to be created",
+            "schema": {
+              "$ref": "#/definitions/addProject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addProject"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/addProjectUser/{projectId}": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add a Project user for a project in a company in the system",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to add user to",
+            "schema": {
+              "$ref": "#/definitions/addProjectUser"
+            }
+          },
+          {
+            "name": "projectUser",
+            "in": "body",
+            "description": "user to be added",
+            "schema": {
+              "$ref": "#/definitions/addProjectUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addProjectUserResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/editProjectUser/{projectId}/{userId}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit a project user",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to add user to",
+            "schema": {
+              "$ref": "#/definitions/editProjectUser"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "project user to edit",
+            "schema": {
+              "$ref": "#/definitions/editProjectUser"
+            }
+          },
+          {
+            "name": "newRole",
+            "in": "body",
+            "description": "new role to be assigned",
+            "schema": {
+              "$ref": "#/definitions/editProjectUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addProjectUserResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/seller/getAllMyAuctions/{email}": {
+      "get": {
+        "tags": ["Seller"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "description": "Fetch all auction for a specific seller",
+            "schema": {
+              "$ref": "#/definitions/getAllMyAuctions"
+            }
+          }
+        ],
+        "summary": "Fetch all auction for a specific seller",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        }
+      }
+    },
+    "/api/buyer/item/{getAllItemsByBuyerCompanyName}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "getAllItemsByBuyerCompanyName",
+            "in": "path",
+            "description": "item to be created",
+            "schema": {
+              "$ref": "#/definitions/getAllItemsByBuyerCompanyName"
+            }
+          }
+        ],
+        "summary": "Get all items related to a company user in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/getAllProjects/{companyId}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "company ID",
+            "schema": {
+              "$ref": "#/definitions/getAllProjects"
+            }
+          }
+        ],
+        "summary": "Get all projects related to a company user in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/getItemsCatGroups/{companyId}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "id of the company in question",
+            "schema": {
+              "$ref": "#/definitions/getItemsCatGroups"
+            }
+          }
+        ],
+        "summary": "Get all items categories and groups related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/getSupplierCategories/{companyId}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "id of the company in question",
+            "schema": {
+              "$ref": "#/definitions/getItemsCatGroups"
+            }
+          }
+        ],
+        "summary": "Get all suppliers categories related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/getCostCenter/{companyId}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "id of the company in question",
+            "schema": {
+              "$ref": "#/definitions/getItemsCatGroups"
+            }
+          }
+        ],
+        "summary": "Get all suppliers categories related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        }
+      }
+    },
+    "/api/buyer/company/getTag/{companyId}": {
+      "get": {
+        "tags": ["Buyer"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "id of the company in question",
+            "schema": {
+              "$ref": "#/definitions/getItemsCatGroups"
+            }
+          }
+        ],
+        "summary": "Get all suppliers categories related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        }
+      }
+    },
+    "/api/buyer/item/document/uploadDocument": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Update documents upload Item for a company",
+        "parameters": [
+          {
+            "name": "documents",
+            "in": "formData",
+            "type": "file",
+            "description": "item documents to be updated",
+            "schema": {
+              "consumes": ["multipart/form-data"]
+            }
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "description": "Items documents to be updated",
+            "schema": {
+              "$ref": "#/definitions/uploadDocument",
+              "consumes": ["application/json"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/item/addItem": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create an Item for a company",
+        "parameters": [
+          {
+            "name": "documents",
+            "in": "formData",
+            "type": "array",
+            "items": {
+              "type": "file",
+              "format": "string"
+            },
+            "description": "item documents to be created",
+            "schema": {
+              "consumes": ["multipart/form-data"]
+            }
+          },
+          {
+            "name": "item",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "in": "body",
+            "description": "Items to be created",
+            "schema": {
+              "$ref": "#/definitions/item",
+              "consumes": ["application/json"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/addAuction": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Create an Auction and sent notification to seller for the company in the system",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "formData",
+            "type": "file",
+            "description": "auction document to be created",
+            "schema": {
+              "consumes": ["multipart/form-data"]
+            }
+          },
+          {
+            "name": "auction",
+            "in": "body",
+            "description": "sellers email auction notification to be sent",
+            "schema": {
+              "$ref": "#/definitions/auction",
+              "consumes": ["application/json"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/seller/getCompanyInvitation": {
+      "post": {
+        "tags": ["Seller"],
+        "summary": "Get all invitation from company",
+        "parameters": [
+          {
+            "name": "seller",
+            "in": "body",
+            "description": "Get all company invitation",
+            "schema": {
+              "$ref": "#/definitions/getCompanyInvitation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/getCompanyInvitation"
+            }
+          }
+        }
+      }
+    },
+    "/api/seller/getCompanyAcceptedInvitation": {
+      "post": {
+        "tags": ["Seller"],
+        "summary": "Get only Accepted invitation from company",
+        "parameters": [
+          {
+            "name": "seller",
+            "in": "body",
+            "description": "Get only Accepted invitation from company",
+            "schema": {
+              "$ref": "#/definitions/getCompanyAcceptedInvitation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/getCompanyAcceptedInvitation"
+            }
+          }
+        }
+      }
+    },
+    "/api/seller/acceptorDeclineCompanyInvitation": {
+      "patch": {
+        "tags": ["Seller"],
+        "summary": "Accept or Decline invitation from company",
+        "parameters": [
+          {
+            "name": "seller",
+            "in": "body",
+            "description": "Accept or decline invitation",
+            "schema": {
+              "$ref": "#/definitions/acceptorDeclineCompanyInvitation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/acceptorDeclineCompanyInvitation"
+            }
+          }
+        }
+      }
+    },
+    "/api/seller/auctionInvitation": {
+      "post": {
+        "tags": ["Seller"],
+        "summary": "Register and send invitation email to a seller by a company in the system",
+        "parameters": [
+          {
+            "name": "seller",
+            "in": "body",
+            "description": "Seller that we want to create",
+            "schema": {
+              "$ref": "#/definitions/Seller"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/Seller"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/verifySellerEmail/{confirmationCode}": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Seller account activation in the system",
+        "parameters": [
+          {
+            "name": "confirmationCode",
+            "in": "path",
+            "description": "Seller account verification",
+            "schema": {
+              "$ref": "#/definitions/verifySellerEmail"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/verifySellerEmail"
+            }
+          }
+        }
+      }
+    },
+    "/forgetPassword/{passwordConfirmationCode}": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "User forget password reset in the system",
+        "parameters": [
+          {
+            "name": "passwordConfirmationCode",
+            "in": "path",
+            "required": true,
+            "description": "User forget password verification",
+            "schema": {
+              "$ref": "#/definitions/passwordConfirmationCode"
+            }
+          },
+          {
+            "name": "new_password",
+            "in": "body",
+            "required": true,
+            "description": "User forget password verification",
+            "schema": {
+              "$ref": "#/definitions/passwordConfirmationCode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/passwordConfirmationCode"
+            }
+          }
+        }
+      }
+    },
+    "/api/company/editCompany/{companyId}": {
+      "patch": {
+        "tags": ["Company"],
+        "summary": "Edit a Company in the system",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "company to be updated",
+            "schema": {
+              "$ref": "#/definitions/EditsaveCompany"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/EditsaveCompany"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/editBusinessUnit/{id}": {
+      "patch": {
+        "tags": ["Company"],
+        "summary": "Edit a business unit of a company in the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of business unit to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          },
+          {
+            "name": "category",
+            "in": "body",
+            "description": "business unit to be edited",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/editSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/{companyId}/editMember/{userId}": {
+      "patch": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Edit company team meber seller or buyer role",
+            "schema": {
+              "$ref": "#/definitions/editCompanyTeamMember"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "Edit company team meber seller or buyer role",
+            "schema": {
+              "$ref": "#/definitions/editCompanyTeamMember"
+            }
+          },
+          {
+            "name": "editCompanyTeamMembersRole",
+            "in": "body",
+            "description": "Edit company team meber seller or buyer role",
+            "schema": {
+              "$ref": "#/definitions/editCompanyTeamMember"
+            }
+          }
+        ],
+        "summary": "Edit company team meber seller or buyer role in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/getBusinessUnits/{companyId}": {
+      "get": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "id of the company in question",
+            "schema": {
+              "$ref": "#/definitions/getItemsCatGroups"
+            }
+          }
+        ],
+        "summary": "Get all suppliers categories related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/suppliers/{getAllCompanySuppliersByCompanyName}": {
+      "get": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "getAllCompanySuppliersByCompanyName",
+            "in": "path",
+            "description": "Get all company suppliers",
+            "schema": {
+              "$ref": "#/definitions/getAllCompanySuppliersByCompanyName"
+            }
+          }
+        ],
+        "summary": "Get all company suppliers related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/profile/{companyId}": {
+      "get": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "CompanyId",
+            "in": "path",
+            "description": "Get company profile"
+          }
+        ],
+        "summary": "Get company profile in the system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        }
+      }
+    },
+    "/api/company/addBusinessUnit": {
+      "post": {
+        "tags": ["Company"],
+        "summary": "Create a business unit of a company in the system",
+        "parameters": [
+          {
+            "name": "businessUnit",
+            "in": "body",
+            "description": "business unit to be created",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addSupplierCategory"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/{companyId}/members": {
+      "get": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Get all company team members",
+            "schema": {
+              "$ref": "#/definitions/getAllCompanyMembersById"
+            }
+          }
+        ],
+        "summary": "Get all company team members related to a company in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/{companyId}/addMember": {
+      "post": {
+        "tags": ["Company"],
+        "summary": "Add company Team member to be part of a company",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Team members to be created",
+            "schema": {
+              "$ref": "#/definitions/addCompanyTeamMember"
+            }
+          },
+          {
+            "name": "Add team members",
+            "in": "body",
+            "description": "Team members to be created",
+            "schema": {
+              "$ref": "#/definitions/addCompanyTeamMember"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/addSupplierToCompany": {
+      "post": {
+        "tags": ["Company"],
+        "summary": "Add company Supplier to be part of a company",
+        "parameters": [
+          {
+            "name": "Add supplier",
+            "in": "body",
+            "description": "Suppliers to be created",
+            "schema": {
+              "$ref": "#/definitions/addSupplierToCompany"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/addSupplierToCompany"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/item/deleteDocument": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Delete item from a company",
+        "parameters": [
+          {
+            "name": "Delete item",
+            "in": "body",
+            "description": "Item to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemDocument"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemDocument"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+
+    "/api/buyer/deleteProjectUser/{projectId}/{userId}": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete a project user",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to delete user from",
+            "schema": {
+              "$ref": "#/definitions/deleteProjectUser"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "project user to delete",
+            "schema": {
+              "$ref": "#/definitions/deleteProjectUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/item/deleteItem": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete item from a company",
+        "parameters": [
+          {
+            "name": "Delete item",
+            "in": "body",
+            "description": "Item to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItem"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/deleteItemsCatGroup/{id}": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete Category/Group from a company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Category to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/deleteSupplierCategory/{id}": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete supplier Category from a company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Category to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/deleteProject": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete project from a company",
+        "parameters": [
+          {
+            "name": "Delete project",
+            "in": "body",
+            "description": "Project to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteProject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteProject"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+
+    "/api/company/{companyId}/deleteMember/{userId}": {
+      "delete": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Delete company team meber"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "Delete company team meber"
+          }
+        ],
+        "summary": "Delete company team meber in system",
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/deleteBusinessUnit/{id}": {
+      "delete": {
+        "tags": ["Company"],
+        "summary": "Delete business unit from a company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "business unit to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/company/deleteCostCenter/{id}": {
+      "delete": {
+        "tags": ["Company"],
+        "summary": "Delete cost center from a company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "cost center to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        }
+      }
+    },
+    "/api/company/deleteTag/{id}": {
+      "delete": {
+        "tags": ["Company"],
+        "summary": "Delete Tag from a company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "tag to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteItemsCatGroup"
+            }
+          }
+        }
+      }
+    },
+    "/api/company/deleteSupplierFromCompany": {
+      "delete": {
+        "tags": ["Company"],
+        "summary": "Delete company Supplier to be part of a company",
+        "parameters": [
+          {
+            "name": "Delete supplier",
+            "in": "body",
+            "description": "Suppliers to be deleted",
+            "schema": {
+              "$ref": "#/definitions/deleteSupplierFromCompany"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "schema": {
+              "$ref": "#/definitions/deleteSupplierFromCompany"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+
+  "definitions": {
+    "Register": {
+      "required": [
+        "first_name",
+        "last_name",
+        "role",
+        "company_name",
+        "country",
+        "email",
+        "password"
+      ],
+      "properties": {
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "ChangePassword": {
+      "required": ["new_password"],
+      "properties": {
+        "new_password": {
+          "type": "string"
+        }
+      }
+    },
+    "userId": {
+      "required": ["userId"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "updateProfile": {
+      "required": ["userId"],
+      "properties": {
+        "image_upload": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "business_unit": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "mobile": {
+          "type": "string"
+        },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string"
+            },
+            "timezone": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "verifyEmail": {
+      "required": ["confirmationCode"],
+      "properties": {
+        "confirmationCode": {
+          "type": "string"
+        }
+      }
+    },
+    "ResendConfirmationCode": {
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "verifyForgetPassword": {
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "auth": {
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "resetPassword": {
+      "required": ["email", "old_password", "new_password"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "old_password": {
+          "type": "string"
+        },
+        "new_password": {
+          "type": "string"
+        }
+      }
+    },
+    "addProject": {
+      "required": [
+        "project_name",
+        "startDate",
+        "endDate",
+        "location",
+        "description",
+        "project_reference_number",
+        "project_manager",
+        "business_unit",
+        "unit",
+        "department",
+        "currency",
+        "project_status",
+        "companyId",
+        "createdBy"
+      ],
+      "properties": {
+        "project_name": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "location": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "project_reference_number": {
+          "type": "string"
+        },
+        "project_manager": {
+          "type": "string"
+        },
+        "business_unit": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "project_status": {
+          "type": "string"
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        }
+      }
+    },
+    "addProjectUser": {
+      "required": ["projectId", "userId", "role"],
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "editProjectUser": {
+      "required": ["projectId", "userId", "role"],
+      "properties": {
+        "newRole": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteProjectUser": {
+      "required": ["projectId", "userId"]
+    },
+    "addProjectUserResponse": {
+      "properties": {
+        "project_name": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "location": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "project_reference_number": {
+          "type": "string"
+        },
+        "project_manager": {
+          "type": "string"
+        },
+        "business_unit": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "project_status": {
+          "type": "string"
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "saveProjectAsDraft": {
+      "properties": {
+        "project_name": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "location": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "project_reference_number": {
+          "type": "string"
+        },
+        "project_manager": {
+          "type": "string"
+        },
+        "business_unit": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "project_status": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "EditsaveItemDraft": {
+      "required": [
+        "itemId",
+        "item_name",
+        "manufacturer",
+        "notes",
+        "unit",
+        "category",
+        "model",
+        "group",
+        "company_name",
+        "tagss",
+        "status"
+      ],
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "item_name": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "tagss": [],
+        "image_upload": {
+          "type": "string"
+        },
+        "link": [],
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "addItemsCatGroup": {
+      "required": ["name", "itemType", "companyId", "userId"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "itemType": {
+          "type": "string",
+          "enum": ["category", "group"]
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "editItemsCatGroup": {
+      "required": ["id", "name", "itemType", "userId"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "itemType": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "addBudget": {
+      "required": ["projectId", "budget", "companyId", "userId", "costCenter"],
+      "properties": {
+        "budget": {
+          "type": "number"
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "costCenter": {
+          "type": "string"
+        }
+      }
+    },
+    "addSupplierCategory": {
+      "required": ["name", "companyId", "userId"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "editSupplierCategory": {
+      "required": ["id", "name", "userId"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "EditsaveProjectDraft": {
+      "properties": {
+        "project_name": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "location": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "project_reference_number": {
+          "type": "string"
+        },
+        "project_manager": {
+          "type": "string"
+        },
+        "business_unit": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "project_status": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        }
+      }
+    },
+    "item": {
+      "required": [
+        "itemId",
+        "item_name",
+        "manufacturer",
+        "notes",
+        "unit",
+        "category",
+        "model",
+        "group",
+        "company_name",
+        "tagss",
+        "status",
+        "userId"
+      ],
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "item_name": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "tagss": [],
+        "image_upload": {
+          "type": "string"
+        },
+        "link": [],
+        "status": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "saveItemAsDraft": {
+      "required": [
+        "itemId",
+        "item_name",
+        "manufacturer",
+        "notes",
+        "unit",
+        "category",
+        "model",
+        "group",
+        "tagss",
+        "status",
+        "company_name",
+        "userId"
+      ],
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "item_name": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "tagss": [],
+        "image_upload": {
+          "type": "string"
+        },
+        "link": [],
+        "status": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "auction": {
+      "required": ["project_type", "company_buyer_name", "userId"],
+      "properties": {
+        "project_type": {
+          "type": "string"
+        },
+        "sellersEmail": [],
+        "company_buyer_name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "Seller": {
+      "required": ["auctionId", "buyerUserId", "email", "company_buyer_name"],
+      "properties": {
+        "auctionId": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "buyerUserId": {
+          "type": "string"
+        },
+        "company_buyer_name": {
+          "type": "string"
+        }
+      }
+    },
+    "getCompanyInvitation": {
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "getCompanyAcceptedInvitation": {
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "acceptorDeclineCompanyInvitation": {
+      "required": ["id", "invitation"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "invitation": {
+          "type": "string"
+        }
+      }
+    },
+    "verifySellerEmail": {
+      "required": ["confirmationCode"],
+      "properties": {
+        "confirmationCode": {
+          "type": "string"
+        }
+      }
+    },
+    "getAllMyAuctions": {
+      "required": ["sellersEmail"],
+      "properties": {
+        "sellersEmail": {
+          "type": "string"
+        }
+      }
+    },
+    "getAllProjects": {
+      "required": ["companyId"],
+      "properties": {
+        "companyId": {
+          "type": "string"
+        }
+      }
+    },
+    "getAllItemsByBuyerCompanyName": {
+      "required": ["company_name"],
+      "properties": {
+        "company_name": {
+          "type": "string"
+        }
+      }
+    },
+    "CompanyName": {
+      "required": ["company_name"],
+      "properties": {
+        "company_name": {
+          "type": "string"
+        }
+      }
+    },
+    "getItemsCatGroups": {
+      "required": ["companyId"],
+      "properties": {
+        "companyId": {
+          "type": "string"
+        }
+      }
+    },
+    "passwordConfirmationCode": {
+      "properties": {
+        "new_password": {
+          "type": "string"
+        }
+      }
+    },
+    "EditsaveCompany": {
+      "required": ["companyId"],
+      "properties": {
+        "image_upload": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "mobile": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        }
+      }
+    },
+    "getAllCompanyMembersById": {
+      "properties": {
+        "companyId": {
+          "type": "string"
+        }
+      }
+    },
+    "getAllCompanySuppliersByCompanyName": {
+      "properties": {
+        "company_buyer_name": {
+          "type": "string"
+        }
+      }
+    },
+    "editCompanyTeamMember": {
+      "required": [
+        "companyId",
+        "userId",
+        "isSeller",
+        "isBuyer",
+        "role",
+        "position",
+        "isAdmin"
+      ],
+      "properties": {
+        "isSeller": {
+          "type": "boolean"
+        },
+        "isBuyer": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      }
+    },
+    "addCompanyTeamMember": {
+      "required": [
+        "first_name",
+        "last_name",
+        "role",
+        "position",
+        "company_name",
+        "email",
+        "isAdmin",
+        "isSeller",
+        "isBuyer"
+      ],
+      "properties": {
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        },
+        "isSeller": {
+          "type": "boolean"
+        },
+        "isBuyer": {
+          "type": "boolean"
+        }
+      }
+    },
+    "addSupplierToCompany": {
+      "required": ["email", "company_buyer_name", "buyerUserId"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "company_buyer_name": {
+          "type": "string"
+        },
+        "buyerUserId": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteSupplierFromCompany": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteProject": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteItem": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteTag": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteItemsCatGroup": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "deleteItemDocument": {
+      "required": ["id", "fileName", "path"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "uploadDocument": {
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
