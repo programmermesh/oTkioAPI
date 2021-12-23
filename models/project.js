@@ -61,7 +61,12 @@ const Project = mongoose.model(
         },
       ],
     },
-    budgets: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] },
+    budgets: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Budget" }],
+    },
+    attachments: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }],
+    },
   })
 );
 

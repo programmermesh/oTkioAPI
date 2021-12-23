@@ -19,6 +19,8 @@ const { Auction, validateAuction } = require("../models/auction");
 const multer = require("multer");
 const express = require("express");
 const { validateBudget, Budget } = require("../models/budget");
+const { validateDoc, Doc } = require("../models/doc");
+const { Attachment } = require("../models/attachment");
 const router = express.Router();
 
 const fileStorageEngine = multer.diskStorage({
@@ -1094,6 +1096,141 @@ router.post("/company/:projectId/addBudget", async (req, res) => {
       budget,
       responseCode: "00",
       responseDescription: "Cost center created Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.post("/company/:projectId/addAttachment", async (req, res) => {
+  // const { error } = validateBudget(req.body);
+  // if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let attachment = new Attachment({
+      ..._.pick(req.body, ["name", "note"]),
+      projectId: req.params.projectId,
+      createdBy: req.body.userId,
+    });
+    if (req.body.link) {
+      attachment.link = req.body.link;
+    } else if (req.body.doc) {
+      attachment.doc = req.body.doc;
+    } else {
+      const url = `${process.env.VERIFICATION_URL}/uploads/`;
+      const path = "uploads\\\\";
+
+      const document = req.file;
+
+      attachment.document = {
+        fileName: `${url}${document.filename}`,
+        path: `${path}${document.filename}`,
+      };
+    }
+    attachment = await attachment.save();
+
+    let project = await Project.findById(req.params.projectId);
+
+    if (project) {
+      project.attachments.push(attachment._id);
+      project = await project.save();
+    }
+    res.send({
+      attachment,
+      responseCode: "00",
+      responseDescription: "Attachment created Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.post("/company/editAttachment/:id", async (req, res) => {
+  // const { error } = validateBudget(req.body);
+  // if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let attachment = await Attachment.findById(req.params.id);
+    if (attachment) {
+      attachment.name = req.body.name;
+      attachment.updatedBy = req.body.userId;
+
+      attachment = await attachment.save();
+
+      res.send({
+        // attachment,
+        responseCode: "00",
+        responseDescription: "Attachment updated Successfully",
+      });
+    }
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.post("/library/addDoc", upload.single("document"), async (req, res) => {
+  const { error } = validateDoc(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let doc = new Doc({
+      ..._.pick(req.body, ["name", "companyId"]),
+      createdBy: req.body.userId,
+    });
+
+    const url = `${process.env.VERIFICATION_URL}/uploads/`;
+    const path = "uploads\\\\";
+
+    const document = req.file;
+
+    doc.document = {
+      fileName: `${url}${document.filename}`,
+      path: `${path}${document.filename}`,
+    };
+
+    doc = await doc.save();
+    res.send({
+      doc,
+      responseCode: "00",
+      responseDescription: "Item created Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.patch("/library/editDoc/:id", async (req, res) => {
+  // const { error } = validateDoc(req.body);
+  // if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    await Doc.findByIdAndUpdate(req.params.id, {
+      $set: { name: req.body.name, updatedBy: req.body.userId },
+    });
+
+    // doc = await doc.save();
+    res.send({
+      // doc,
+      responseCode: "00",
+      responseDescription: "Doc updated Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.delete("/library/deleteDoc/:id", async (req, res) => {
+  // const { error } = validateDoc(req.body);
+  // if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    await Doc.findByIdAndDelete(req.params.id);
+
+    // doc = await doc.save();
+    res.send({
+      // doc,
+      responseCode: "00",
+      responseDescription: "Doc deleted Successfully",
     });
   } catch (ex) {
     console.log(ex.message);

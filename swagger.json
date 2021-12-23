@@ -650,6 +650,92 @@
         ]
       }
     },
+    "/api/buyer/library/addDoc": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add document to library",
+        "parameters": [
+          {
+            "name": "doc",
+            "in": "body",
+            "description": "document to be added",
+            "schema": {
+              "$ref": "#/definitions/addDoc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/{projectId}/addAttachment": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add attachment to project",
+        "parameters": [
+          {
+            "name": "attachment",
+            "in": "body",
+            "description": "attachment to be added",
+            "schema": {
+              "$ref": "#/definitions/addAttachment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/library/editDoc/{id}": {
+      "patch": {
+        "tags": ["Buyer"],
+        "summary": "Edit document in library",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of document to be edited",
+            "schema": {
+              "$ref": "#/definitions/editDoc"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "body",
+            "description": "document to be edited",
+            "schema": {
+              "$ref": "#/definitions/editDoc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/buyer/company/editSupplierCategory/{id}": {
       "patch": {
         "tags": ["Buyer"],
@@ -1629,7 +1715,29 @@
         ]
       }
     },
-
+    "/api/buyer/library/deleteDoc/{id}": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete document from library",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of document to be deleted"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/buyer/deleteProjectUser/{projectId}/{userId}": {
       "delete": {
         "tags": ["Buyer"],
@@ -2338,6 +2446,68 @@
           "type": "string"
         },
         "itemType": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "addDoc": {
+      "required": ["name", "document", "companyId", "userId"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "document": {
+          "type": "multipart/form-data"
+        },
+        "companyId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "addAttachment": {
+      "required": [
+        "name",
+        "note",
+        "attachment",
+        "link",
+        "doc",
+        "projectId",
+        "userId"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "attachment": {
+          "type": "multipart/form-data"
+        },
+        "link": {
+          "type": "string"
+        },
+        "doc": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "editDoc": {
+      "required": ["id", "name", "userId"],
+      "properties": {
+        "name": {
           "type": "string"
         },
         "userId": {
