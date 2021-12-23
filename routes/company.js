@@ -220,7 +220,7 @@ router.post("/:companyId/addMember", [authGuard, admin], async (req, res) => {
     await user.save();
 
     // SEND THE USER A VERIFICATION EMAIL
-    const url = `${process.env.VERIFICATION_URL}`;
+    const url = `${process.env.BASE_URL}`;
     console.log(user.email);
     const compose =
       `Hello ${user.first_name + " " + user.last_name} <br><br>` +
