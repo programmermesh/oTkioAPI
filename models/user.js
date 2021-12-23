@@ -106,6 +106,7 @@ function validateCompanyTeamMembers(user) {
     last_name: Joi.string().min(3).required().label("Last Name"),
     role: Joi.string().required().label("Role"),
     position: Joi.string().required().label("Position"),
+    company_name: Joi.string().required().label("Company Name"),
     email: Joi.string().required().email().label("Emaill"),
     isAdmin: Joi.boolean().label("Admin user"),
     isSeller: Joi.boolean().label("Company seller"),
