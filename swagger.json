@@ -676,6 +676,40 @@
         ]
       }
     },
+    "/api/buyer/project/{projectId}/comment": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add comment to project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to be commented on",
+            "schema": {
+              "$ref": "#/definitions/addComment"
+            }
+          },
+          {
+            "name": "comment",
+            "in": "body",
+            "description": "comment to be added",
+            "schema": {
+              "$ref": "#/definitions/addComment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/buyer/company/{projectId}/addAttachment": {
       "post": {
         "tags": ["Buyer"],
@@ -1092,6 +1126,29 @@
             "description": "Successful"
           }
         }
+      }
+    },
+    "/api/buyer/project/{projectId}/comments": {
+      "get": {
+        "tags": ["Buyer"],
+        "summary": "Get comments on project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to get comments from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/buyer/company/getTag/{companyId}": {
@@ -1706,6 +1763,34 @@
             "schema": {
               "$ref": "#/definitions/deleteItemDocument"
             }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/deleteBudget/{projectId}/{id}": {
+      "delete": {
+        "tags": ["Buyer"],
+        "summary": "Delete budget from a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to delete budget from"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "budget to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
           }
         },
         "security": [
@@ -2463,6 +2548,20 @@
           "type": "multipart/form-data"
         },
         "companyId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "addComment": {
+      "required": ["projectId", "content", "userId"],
+      "properties": {
+        "replyingTo": {
+          "type": "string"
+        },
+        "content": {
           "type": "string"
         },
         "userId": {

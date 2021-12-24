@@ -21,6 +21,7 @@ const express = require("express");
 const { validateBudget, Budget } = require("../models/budget");
 const { validateDoc, Doc } = require("../models/doc");
 const { Attachment } = require("../models/attachment");
+const { Comment, validateComment } = require("../models/comment");
 const router = express.Router();
 
 const fileStorageEngine = multer.diskStorage({
@@ -1102,6 +1103,24 @@ router.post("/company/:projectId/addBudget", async (req, res) => {
   }
 });
 
+router.delete("/deleteBudget/:projectId//:id", async (req, res) => {
+  try {
+    await Budget.findByIdAndDelete(req.params.id);
+
+    let project = await Project.findByIdAndUpdate(req.params.projectId, {
+      $pull: { budgets: { _id: req.params.id } },
+    });
+
+    project = await project.save();
+    res.send({
+      responseCode: "00",
+      responseDescription: "Budget deleted Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
 router.post("/company/:projectId/addAttachment", async (req, res) => {
   // const { error } = validateBudget(req.body);
   // if (error) return res.status(400).send(error.details[0].message);
@@ -1193,6 +1212,63 @@ router.post("/library/addDoc", upload.single("document"), async (req, res) => {
       doc,
       responseCode: "00",
       responseDescription: "Item created Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.post("/project/:projectId/comment", async (req, res) => {
+  const { error } = validateComment(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let comment = new Comment({
+      ..._.pick(req.body, ["content"]),
+      user: req.body.userId,
+      projectId: req.params.projectId,
+      replyingTo: req.body.replyingTo,
+    });
+
+    comment = await comment.save();
+    if (req.body.replyingTo) {
+      await Comment.findByIdAndUpdate(req.body.replyingTo, {
+        $push: { replies: comment._id },
+      });
+    } else {
+      await Project.findByIdAndUpdate(req.params.projectId, {
+        $push: { comments: comment._id },
+      });
+    }
+    res.send({
+      responseCode: "00",
+      responseDescription: "Comment sent Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/project/:projectId/comments", async (req, res) => {
+  try {
+    let { comments } = await Project.findById(req.params.projectId)
+      .populate({
+        path: "comments",
+        populate: [
+          { path: "user", select: "first_name last_name" },
+          {
+            path: "replies",
+            select: "content user",
+            populate: { path: "user", select: "first_name last_name" },
+          },
+        ],
+      })
+      .select("-_id");
+
+    res.send({
+      comments,
+      responseCode: "00",
+      responseDescription: "Comments fetched Successfully",
     });
   } catch (ex) {
     console.log(ex.message);

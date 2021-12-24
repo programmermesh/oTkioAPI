@@ -67,6 +67,9 @@ const Project = mongoose.model(
     attachments: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }],
     },
+    comments: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+    },
   })
 );
 
