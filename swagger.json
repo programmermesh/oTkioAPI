@@ -1029,6 +1029,29 @@
         ]
       }
     },
+    "/api/buyer/company/{projectId}/budgets": {
+      "get": {
+        "tags": ["Buyer"],
+        "summary": "Get budgets for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to get budgets from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/buyer/getAllProjects/{companyId}": {
       "get": {
         "tags": ["Buyer"],
@@ -2621,9 +2644,6 @@
           "type": "number"
         },
         "companyId": {
-          "type": "string"
-        },
-        "projectId": {
           "type": "string"
         },
         "userId": {

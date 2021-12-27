@@ -1275,6 +1275,32 @@ router.get("/project/:projectId/comments", async (req, res) => {
   }
 });
 
+router.get("/company/:projectId/budgets", async (req, res) => {
+  try {
+    let { budgets } = await Project.findById(req.params.projectId)
+      .populate({
+        path: "budgets",
+        populate: [
+          { path: "createdBy", select: "first_name last_name" },
+          {
+            path: "costCenter",
+            select: "name",
+            populate: { path: "createdBy", select: "first_name last_name" },
+          },
+        ],
+      })
+      .select("-_id");
+
+    res.send({
+      budgets,
+      responseCode: "00",
+      responseDescription: "Budgets fetched Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
 router.patch("/library/editDoc/:id", async (req, res) => {
   // const { error } = validateDoc(req.body);
   // if (error) return res.status(400).send(error.details[0].message);
