@@ -5,39 +5,74 @@ const mongoose = require("mongoose");
 const Auction = mongoose.model(
   "Auction",
   new mongoose.Schema({
-    auction: [
-      {
-        name: String,
-        owner: String,
-        description: String,
-        cost_center: String,
-        start_date: Date,
-        end_date: Date,
-        starting_price: String,
-        currency: String,
-        budget: String,
-        minimum_step: String,
-        cool_down_period: String,
-        item: String,
-        buyer_status: String,
-        company_buyer_name: String,
-        supplier_status: String,
-        supplier_email: String,
-      },
-    ],
-    link: {
-      type: Array,
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
     },
-    userId: {
+    auction_type: {
+      type: String,
+    },
+    auction_name: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
+    startDate: {
+      type: Date,
+    },
+    endDate: {
+      type: Date,
+    },
+    starting_price: {
+      type: Number,
+    },
+    minimum_step: {
+      type: Number,
+    },
+    currency: {
+      type: String,
+    },
+    cost_center: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cost_Center",
+    },
+    budget: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Budget",
+    },
+    cool_down: {
+      type: Number,
+    },
+    awarding_commitment: {
+      type: Boolean,
+    },
+    show_to_supplier: {
+      type: String,
+    },
+    reserve_price: {
+      type: Number,
+    },
+    number_of_participants: {
+      type: String,
+    },
+    disclose_suppliers_bid: {
+      type: Boolean,
+    },
+    disclose_suppliers_name: {
+      type: Boolean,
+    },
+    disclose_starting_price: {
+      type: Boolean,
+    },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    documentPath: [
-      {
-        fileName: String,
-        path: String,
-      },
-    ],
   })
 );
 
