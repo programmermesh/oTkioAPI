@@ -44,13 +44,13 @@ router.get("/getAllProjects/:companyId", authGuard, async (req, res) => {
 
   project.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: `No record found` })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: `No record found` })
     : res.status(200).send({
-        project,
-        responseCode: "00",
-        responseDescription: `Succesfull`,
-      });
+      project,
+      responseCode: "00",
+      responseDescription: `Succesfull`,
+    });
 });
 
 router.post("/addProject", [authGuard, admin], async (req, res) => {
@@ -223,13 +223,13 @@ router.get("/auctions/:getAllActionsByBuyerUserID", async (req, res) => {
   });
   auction.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: "No record found" })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: "No record found" })
     : res.status(200).send({
-        auction,
-        responseCode: "00",
-        responseDescription: "Succesfull",
-      });
+      auction,
+      responseCode: "00",
+      responseDescription: "Succesfull",
+    });
 });
 
 router.get("/auctions/supplier/:getAllActionsByEmail", async (req, res) => {
@@ -548,13 +548,13 @@ router.get(
 
     item.length <= 0
       ? res
-          .status(400)
-          .send({ responseCode: "99", responseDescription: `No record found` })
+        .status(400)
+        .send({ responseCode: "99", responseDescription: `No record found` })
       : res.status(200).send({
-          item,
-          responseCode: "00",
-          responseDescription: `Succesfull`,
-        });
+        item,
+        responseCode: "00",
+        responseDescription: `Succesfull`,
+      });
   }
 );
 
@@ -788,6 +788,34 @@ router.delete("/item/deleteItem", async (req, res) => {
   }
 });
 
+router.get("/item/search", async (req, res) => {
+  let query = req.query.q;
+
+  function escapeRegex(q) {
+    return q.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  }
+
+  try {
+    if (!query) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Query parameter can not be empty"
+      })
+    };
+
+    const items = await Item.find({ name: new RegExp(escapeRegex(query), 'gi') });
+
+    return res.send({
+      items,
+      responseCode: "00",
+      responseDescription: "Queried items fetched successfully"
+    });
+
+  } catch (ex) {
+    console.log(ex.message);
+  }
+})
+
 router.patch("/company/profile/:companyName", async (req, res) => {
   const companyProfile = await Company.find({
     company_name: req.params.companyName,
@@ -834,13 +862,13 @@ router.get("/company/getItemsCatGroups/:companyId", async (req, res) => {
   // console.log(itemsCatAndGroups);
   itemsCatAndGroups.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: `No record found` })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: `No record found` })
     : res.status(200).send({
-        itemsCatAndGroups,
-        responseCode: "00",
-        responseDescription: `Succesfull`,
-      });
+      itemsCatAndGroups,
+      responseCode: "00",
+      responseDescription: `Succesfull`,
+    });
 });
 
 router.get("/company/getSupplierCategories/:companyId", async (req, res) => {
@@ -850,13 +878,13 @@ router.get("/company/getSupplierCategories/:companyId", async (req, res) => {
   // console.log(supplierCategories);
   supplierCategories.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: `No record found` })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: `No record found` })
     : res.status(200).send({
-        supplierCategories,
-        responseCode: "00",
-        responseDescription: `Succesfull`,
-      });
+      supplierCategories,
+      responseCode: "00",
+      responseDescription: `Succesfull`,
+    });
 });
 
 router.get("/company/getCostCenter/:companyId", async (req, res) => {
@@ -866,13 +894,13 @@ router.get("/company/getCostCenter/:companyId", async (req, res) => {
   //console.log(costCenter);
   costCenter.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: `No record found` })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: `No record found` })
     : res.status(200).send({
-        costCenter,
-        responseCode: "00",
-        responseDescription: `Succesfull`,
-      });
+      costCenter,
+      responseCode: "00",
+      responseDescription: `Succesfull`,
+    });
 });
 
 router.get("/company/getTag/:companyId", async (req, res) => {
@@ -882,13 +910,13 @@ router.get("/company/getTag/:companyId", async (req, res) => {
   // console.log(supplierCategories);
   tag.length <= 0
     ? res
-        .status(400)
-        .send({ responseCode: "99", responseDescription: `No record found` })
+      .status(400)
+      .send({ responseCode: "99", responseDescription: `No record found` })
     : res.status(200).send({
-        tag,
-        responseCode: "00",
-        responseDescription: `Succesfull`,
-      });
+      tag,
+      responseCode: "00",
+      responseDescription: `Succesfull`,
+    });
 });
 
 router.post(
