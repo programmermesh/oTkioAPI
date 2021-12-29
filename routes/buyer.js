@@ -288,6 +288,7 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
         "disclose_suppliers_bid",
         "disclose_suppliers_name",
         "suppliers",
+        "companyId"
       ])
     );
 
@@ -306,19 +307,16 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
     }
 
     if (documents.length > 0) {
+      auction.uploads = [];
       documents.forEach((doc) => {
-        auction.upload.push({
+        auction.uploads.push({
           fileName: `${upload_url}${doc.filename}`,
           path: `${path}${doc.filename}`,
         });
       });
     }
 
-    let user = await User.findById(req.user._id);
-
-    auction.createdBy = user._id;
-    auction.updatedBy = user._id;
-    auction.companyId = user.company;
+    auction.createdBy = req.user._id;
 
     auction = await auction.save();
 
@@ -384,11 +382,11 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
   }
 });
 
-router.delete('/auctions/:auctionId', async (req, res) => {
-  const { auctionId } = req.params;
+router.delete('/company/:companyId/auctions/:auctionId', async (req, res) => {
+  const { auctionId, companyId } = req.params;
 
   try {
-    let auction = await Auction.findOne({ _id: auctionId });
+    let auction = await Auction.findOne({ _id: auctionId, companyId });
 
     if (!auction) {
       return res.send({
@@ -407,14 +405,14 @@ router.delete('/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.patch('/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
-  const { auctionId } = req.params;
+router.patch('/company/:companyId/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
+  const { auctionId, companyId } = req.params;
 
   const { error } = validateAuction(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    let auction = await Auction.findOne({ _id: auctionId });
+    let auction = await Auction.findOne({ _id: auctionId, companyId });
 
     if (!auction) {
       return res.send({
@@ -446,6 +444,9 @@ router.patch('/auctions/:auctionId', upload.array("documents", 10), async (req, 
 
     auction.updatedBy = req.user._id;
 
+    const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
+    const path = "uploads\\\\";
+
     if (req.body.links > 0) {
       auction.links = req.body.links;
     }
@@ -456,7 +457,7 @@ router.patch('/auctions/:auctionId', upload.array("documents", 10), async (req, 
 
     if (documents.length > 0) {
       documents.forEach((doc) => {
-        auction.upload.push({
+        auction.uploads.push({
           fileName: `${upload_url}${doc.filename}`,
           path: `${path}${doc.filename}`,
         });
@@ -475,11 +476,11 @@ router.patch('/auctions/:auctionId', upload.array("documents", 10), async (req, 
 })
 
 
-router.get('/auctions/:auctionId', async (req, res) => {
-  const { auctionId } = req.params;
+router.get('/company/:companyId/auctions/:auctionId', async (req, res) => {
+  const { auctionId, companyId } = req.params;
 
   try {
-    const auction = await Auction.findOne({ _id: auctionId });
+    const auction = await Auction.findOne({ _id: auctionId, companyId });
 
     if (!auction) {
       return res.send({
@@ -498,14 +499,14 @@ router.get('/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.get("/auction", async (req, res) => {
+router.get("/company/:companyId/auction", async (req, res) => {
   try {
-    const auctions = await Auction.find({ createdBy: req.user._id});
+    const auctions = await Auction.find({ companyId });
 
     if (auctions.length < 1) {
       return res.send({
         responseCode: "00",
-        responseDescription: "No auction"  
+        responseDescription: "No auction found"
       })
     }
 
@@ -514,7 +515,7 @@ router.get("/auction", async (req, res) => {
       responseCode: "00",
       responseDescription: "Auctions fetched successfully"
     })
-  } catch(ex) {
+  } catch (ex) {
     console.log(ex.message);
   }
 })

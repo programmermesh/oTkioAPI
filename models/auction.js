@@ -73,10 +73,10 @@ const Auction = mongoose.model(
       fileName: String,
       path: String
     }],
-    docs: {
+    docs: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Doc'
-    },
+    }],
     links: [String],
     items: [{
       type: mongoose.Schema.Types.ObjectId,
@@ -118,10 +118,11 @@ function validateAuction(auction) {
     number_of_participants: Joi.number().required().label("Number of participants"),
     disclose_suppliers_bid: Joi.boolean().required().label("Disclose suppliers bid"),
     disclose_suppliers_name: Joi.boolean().required().label("Disclose supliers name"),
-    items: Joi.array ().items(Joi.string()).required().label("Items"),
+    items: Joi.array().items(Joi.string()).required().label("Items"),
     suppliers: Joi.array().items(Joi.string()).required().label("Suppliers"),
     docs: Joi.array().items(Joi.string()).required().label('Document'),
-    links: Joi.array().items(Joi.string()).optional().label('Links')
+    links: Joi.array().items(Joi.string()).optional().label('Links'),
+    companyId: Joi.string().required().label("CompanyId"),
   });
 
   return schema.validate(auction);
