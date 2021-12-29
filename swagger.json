@@ -1052,6 +1052,52 @@
         ]
       }
     },
+    "/api/buyer/company/{projectId}/attachments": {
+      "get": {
+        "tags": ["Buyer"],
+        "summary": "Get attachments for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to get attachments from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/{companyId}/library": {
+      "get": {
+        "tags": ["Buyer"],
+        "summary": "Get library docs for a company",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "company to get library docs from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/buyer/getAllProjects/{companyId}": {
       "get": {
         "tags": ["Buyer"],

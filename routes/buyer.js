@@ -1121,48 +1121,52 @@ router.delete("/deleteBudget/:projectId//:id", async (req, res) => {
   }
 });
 
-router.post("/company/:projectId/addAttachment", async (req, res) => {
-  // const { error } = validateBudget(req.body);
-  // if (error) return res.status(400).send(error.details[0].message);
+router.post(
+  "/company/:projectId/addAttachment",
+  upload.single("document"),
+  async (req, res) => {
+    // const { error } = validateBudget(req.body);
+    // if (error) return res.status(400).send(error.details[0].message);
 
-  try {
-    let attachment = new Attachment({
-      ..._.pick(req.body, ["name", "note"]),
-      projectId: req.params.projectId,
-      createdBy: req.body.userId,
-    });
-    if (req.body.link) {
-      attachment.link = req.body.link;
-    } else if (req.body.doc) {
-      attachment.doc = req.body.doc;
-    } else {
-      const url = `${process.env.VERIFICATION_URL}/uploads/`;
-      const path = "uploads\\\\";
+    try {
+      let attachment = new Attachment({
+        ..._.pick(req.body, ["name", "note"]),
+        projectId: req.params.projectId,
+        createdBy: req.body.userId,
+      });
+      if (req.body.link) {
+        attachment.link = req.body.link;
+      } else if (req.body.doc) {
+        attachment.doc = req.body.doc;
+      } else {
+        const url = `${process.env.VERIFICATION_URL}/uploads/`;
+        const path = "uploads\\\\";
 
-      const document = req.file;
+        const document = req.file;
 
-      attachment.document = {
-        fileName: `${url}${document.filename}`,
-        path: `${path}${document.filename}`,
-      };
+        attachment.document = {
+          fileName: `${url}${document.filename}`,
+          path: `${path}${document.filename}`,
+        };
+      }
+      attachment = await attachment.save();
+
+      let project = await Project.findById(req.params.projectId);
+
+      if (project) {
+        project.attachments.push(attachment._id);
+        project = await project.save();
+      }
+      res.send({
+        attachment,
+        responseCode: "00",
+        responseDescription: "Attachment created Successfully",
+      });
+    } catch (ex) {
+      console.log(ex.message);
     }
-    attachment = await attachment.save();
-
-    let project = await Project.findById(req.params.projectId);
-
-    if (project) {
-      project.attachments.push(attachment._id);
-      project = await project.save();
-    }
-    res.send({
-      attachment,
-      responseCode: "00",
-      responseDescription: "Attachment created Successfully",
-    });
-  } catch (ex) {
-    console.log(ex.message);
   }
-});
+);
 
 router.post("/company/editAttachment/:id", async (req, res) => {
   // const { error } = validateBudget(req.body);
@@ -1301,6 +1305,32 @@ router.get("/company/:projectId/budgets", async (req, res) => {
   }
 });
 
+router.get("/company/:projectId/attachments", async (req, res) => {
+  try {
+    let { attachments } = await Project.findById(req.params.projectId)
+      .populate({
+        path: "attachments",
+        select: "name note attachment link",
+        populate: [
+          { path: "createdBy", select: "first_name last_name" },
+          {
+            path: "doc",
+            select: "name document",
+          },
+        ],
+      })
+      .select("-_id");
+
+    res.send({
+      attachments,
+      responseCode: "00",
+      responseDescription: "Attachments fetched Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
 router.patch("/library/editDoc/:id", async (req, res) => {
   // const { error } = validateDoc(req.body);
   // if (error) return res.status(400).send(error.details[0].message);
@@ -1333,6 +1363,22 @@ router.delete("/library/deleteDoc/:id", async (req, res) => {
       // doc,
       responseCode: "00",
       responseDescription: "Doc deleted Successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/company/:companyId/library", async (req, res) => {
+  try {
+    let library = await Doc.find({ companyId: req.params.companyId })
+      .populate({ path: "createdBy", select: "first_name last_name" })
+      .select("name document");
+
+    res.send({
+      library,
+      responseCode: "00",
+      responseDescription: "Attachments fetched Successfully",
     });
   } catch (ex) {
     console.log(ex.message);
