@@ -269,88 +269,110 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
   try {
     let auction = new Auction(
       _.pick(req.body, [
-        "name",
-        "owner",
+        "projectId",
+        "auction_type",
+        "auction_name",
         "description",
-        "start_date",
-        "end_date",
+        "startDate",
+        "endDate",
         "starting_price",
-        "cost_center",
-        "currency",
-        "link",
-        "budget",
         "minimum_step",
-        "cool_down_period",
-        "item",
-        "suppliers_email",
-        "buyer_status",
-        "supplier_status",
-        "company_buyer_name",
-        "userId",
+        "currency",
+        "cost_center",
+        "budget",
+        "cool_down",
+        "awarding_commitment",
+        "show_to_supplier",
+        "reserve_price",
+        "number_of_participants",
+        "disclose_suppliers_bid",
+        "disclose_suppliers_name",
+        "suppliers",
       ])
     );
 
     const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
     const path = "uploads\\\\";
 
-    const documentsPath = req.files;
 
-    documentsPath.forEach((items) => {
-      auction.documentPath.push({
-        fileName: `${upload_url}${items.filename}`,
-        path: `${path}${items.filename}`,
+    const documents = req.files;
+
+    if (req.body.links.length > 0) {
+      auction.links = req.body.links;
+    }
+
+    if (req.body.docs.length > o) {
+      auction.docs = req.body.docs
+    }
+
+    if (documents.length > 0) {
+      documents.forEach((doc) => {
+        auction.upload.push({
+          fileName: `${upload_url}${doc.filename}`,
+          path: `${path}${doc.filename}`,
+        });
       });
-    });
+    }
 
-    const data = req.body.suppliers_email;
-    data.forEach((items) => {
-      auction.auctions.push({
-        description: req.body.description,
-        name: req.body.name,
-        owner: req.body.owner,
-        start_date: req.body.start_date,
-        end_date: req.body.end_date,
-        starting_price: req.body.starting_price,
-        cost_center: req.body.cost_center,
-        currency: req.body.currency,
-        budget: req.body.budget,
-        minimum_step: req.body.minimum_step,
-        cool_down_period: req.body.cool_down_period,
-        item: req.body.item,
-        buyer_status: req.body.buyer_status,
-        supplier_status: req.body.supplier_status,
-        company_buyer_name: req.body.company_buyer_name,
-        supplier_email: items,
-      });
-    });
+    let user = await User.findById(req.user._id);
 
-    (auction.userId = req.body.userId),
-      (auction.link = req.body.link),
-      (auction = await auction.save());
+    auction.createdBy = user._id;
+    auction.updatedBy = user._id;
+    auction.companyId = user.company;
 
-    const notification_url = `${process.env.VERIFICATION_URL}`;
-    // SEND THE SELLER A NOTIFICATION EMAIL
-    const compose =
-      `Hello! <br><br> You have been invited to be part of an auction by <b>${req.body.company_buyer_name}</b>.<br><br>` +
-      `Kindly login to OKTIO to see auction.<br>` +
-      `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
-      `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
-      `Best Regards, <br/> OKTIO Team`;
+    auction = await auction.save();
 
-    const mailOptions = {
-      from: "noreply@otkio.com", // sender address
-      bcc: `${req.body.suppliers_email}`, // list of receivers
-      subject: "Auction Notification", // Subject line
-      html: `${compose}`, // html body
-    };
+    // const data = req.body.suppliers_email;
+    // data.forEach((items) => {
+    //   auction.auctions.push({
+    //     description: req.body.description,
+    //     name: req.body.name,
+    //     owner: req.body.owner,
+    //     start_date: req.body.start_date,
+    //     end_date: req.body.end_date,
+    //     starting_price: req.body.starting_price,
+    //     cost_center: req.body.cost_center,
+    //     currency: req.body.currency,
+    //     budget: req.body.budget,
+    //     minimum_step: req.body.minimum_step,
+    //     cool_down_period: req.body.cool_down_period,
+    //     item: req.body.item,
+    //     buyer_status: req.body.buyer_status,
+    //     supplier_status: req.body.supplier_status,
+    //     company_buyer_name: req.body.company_buyer_name,
+    //     supplier_email: items,
+    //   });
+    // });
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
+    // (auction.userId = req.body.userId),
+    //   (auction.link = req.body.link),
+    //   (auction = await auction.save());
+
+    // const notification_url = `${process.env.VERIFICATION_URL}`;
+    // // SEND THE SELLER A NOTIFICATION EMAIL
+    // const compose =
+    //   `Hello! <br><br> You have been invited to be part of an auction by <b>${req.body.company_buyer_name}</b>.<br><br>` +
+    //   `Kindly login to OKTIO to see auction.<br>` +
+    //   `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
+    //   `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
+    //   `Best Regards, <br/> OKTIO Team`;
+
+    // const mailOptions = {
+    //   from: "noreply@otkio.com", // sender address
+    //   bcc: `${req.body.suppliers_email}`, // list of receivers
+    //   subject: "Auction Notification", // Subject line
+    //   html: `${compose}`, // html body
+    // };
+
+    // transporter.sendMail(mailOptions, function (error, info) {
+    //   if (error) {
+    //     console.log(error);
+    //   } else {
+    //     console.log("Email sent: " + info.response);
+    //   }
+    // });
+
+
     return res.send({
       auction,
       responseCode: "00",
@@ -361,6 +383,141 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
     console.log(ex.message);
   }
 });
+
+router.delete('/auctions/:auctionId', async (req, res) => {
+  const { auctionId } = req.params;
+
+  try {
+    let auction = await Auction.findOne({ _id: auctionId });
+
+    if (!auction) {
+      return res.send({
+        responseCode: '99',
+        responseDescription: 'Auction does not exist'
+      })
+    }
+
+    auction = await auction.deleteOne();
+    res.send({
+      responseCode: "00",
+      responseDescription: "Auction deleted successfully"
+    })
+  } catch (ex) {
+    console.log(ex.message)
+  }
+});
+
+router.patch('/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
+  const { auctionId } = req.params;
+
+  const { error } = validateAuction(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let auction = await Auction.findOne({ _id: auctionId });
+
+    if (!auction) {
+      return res.send({
+        responseCode: '99',
+        responseDescription: 'Auction does not exist'
+      })
+    }
+
+    auction.auction_name = req.body.auction_name;
+    auction.auction_type = req.body.auction_type;
+    auction.description = req.body.description;
+    auction.startDate = req.body.startDate;
+    auction.endDate = req.body.endDate;
+    auction.starting_price = req.body.starting_price;
+    auction.minimum_step = req.body.minimum_step;
+    auction.currency = req.body.currency;
+    auction.cost_center = req.body.cost_center;
+    auction.cool_down = req.body.cool_down;
+    auction.awarding_commitment = req.body.awarding_commitment;
+    auction.show_to_supplier = req.body.show_to_supplier;
+    auction.reserve_price = req.body.reserve_price;
+    auction.number_of_participants = req.body.number_of_participants;
+    auction.disclose_suppliers_bid = req.body.disclose_suppliers_bid;
+    auction.disclose_suppliers_name = req.body.disclose_suppliers_name;
+    auction.disclose_suppliers_price = req.body.disclose_suppliers_price;
+    auction.disclose_starting_price = req.body.disclose_starting_price;
+    auction.status = req.body.status;
+    auction.suppliers = req.body.suppliers;
+
+    auction.updatedBy = req.user._id;
+
+    if (req.body.links > 0) {
+      auction.links = req.body.links;
+    }
+
+    if (req.body.docs.length > o) {
+      auction.docs = req.body.docs
+    }
+
+    if (documents.length > 0) {
+      documents.forEach((doc) => {
+        auction.upload.push({
+          fileName: `${upload_url}${doc.filename}`,
+          path: `${path}${doc.filename}`,
+        });
+      });
+    }
+
+    auction = await auction.save();
+    res.send({
+      auction,
+      responseCode: "00",
+      responseDescription: "Auction updated successfully"
+    })
+  } catch (ex) {
+    console.log(ex.message)
+  }
+})
+
+
+router.get('/auctions/:auctionId', async (req, res) => {
+  const { auctionId } = req.params;
+
+  try {
+    const auction = await Auction.findOne({ _id: auctionId });
+
+    if (!auction) {
+      return res.send({
+        responseCode: '99',
+        responseDescription: 'Auction does not exist'
+      })
+    }
+
+    res.send({
+      auction,
+      responseCode: "00",
+      responseDescription: "Auction fetched successfully"
+    })
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/auction", async (req, res) => {
+  try {
+    const auctions = await Auction.find({ createdBy: req.user._id});
+
+    if (auctions.length < 1) {
+      return res.send({
+        responseCode: "00",
+        responseDescription: "No auction"  
+      })
+    }
+
+    res.send({
+      auctions,
+      responseCode: "00",
+      responseDescription: "Auctions fetched successfully"
+    })
+  } catch(ex) {
+    console.log(ex.message);
+  }
+})
 
 router.patch(
   "/auctions/supplier/EditsaveAuctionDraft/:id",
