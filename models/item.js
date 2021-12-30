@@ -23,6 +23,9 @@ const Item = mongoose.model(
     category: {
       type: String,
     },
+    group: {
+      type: String,
+    },
     model: {
       type: String,
     },
