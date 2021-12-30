@@ -118,6 +118,7 @@ function validateAuction(auction) {
     number_of_participants: Joi.number().required().label("Number of participants"),
     disclose_suppliers_bid: Joi.boolean().required().label("Disclose suppliers bid"),
     disclose_suppliers_name: Joi.boolean().required().label("Disclose supliers name"),
+    disclose_starting_price: Joi.boolean().required().label("Disclose starting price"),
     items: Joi.array().items(Joi.string()).required().label("Items"),
     suppliers: Joi.array().items(Joi.string()).required().label("Suppliers"),
     docs: Joi.array().items(Joi.string()).required().label('Document'),

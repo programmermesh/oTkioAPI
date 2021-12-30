@@ -382,7 +382,7 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
   }
 });
 
-router.delete('/company/:companyId/auctions/:auctionId', async (req, res) => {
+router.delete('/:companyId/auctions/:auctionId', async (req, res) => {
   const { auctionId, companyId } = req.params;
 
   try {
@@ -405,7 +405,7 @@ router.delete('/company/:companyId/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.patch('/company/:companyId/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
+router.patch('/:companyId/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
   const { auctionId, companyId } = req.params;
 
   const { error } = validateAuction(req.body);
@@ -476,11 +476,11 @@ router.patch('/company/:companyId/auctions/:auctionId', upload.array("documents"
 })
 
 
-router.get('/company/:companyId/auctions/:auctionId', async (req, res) => {
-  const { auctionId, companyId } = req.params;
+router.get('/auctions/:auctionId', async (req, res) => {
+  const { auctionId } = req.params;
 
   try {
-    const auction = await Auction.findOne({ _id: auctionId, companyId });
+    const auction = await Auction.findOne({ _id: auctionId });
 
     if (!auction) {
       return res.send({
@@ -499,7 +499,7 @@ router.get('/company/:companyId/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.get("/company/:companyId/auction", async (req, res) => {
+router.get("/:companyId/auctions", async (req, res) => {
   try {
     const auctions = await Auction.find({ companyId });
 
