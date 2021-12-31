@@ -54,7 +54,7 @@ const Auction = mongoose.model(
       type: Number,
     },
     number_of_participants: {
-      type: Number,
+      type: String,
     },
     disclose_suppliers_bid: {
       type: Boolean,
@@ -115,7 +115,7 @@ function validateAuction(auction) {
     awarding_commitment: Joi.boolean().required().label("Awarding commitment"),
     show_to_supplier: Joi.boolean().required().label("Show to supplier"),
     reserve_price: Joi.number().required().label("Reserve price"),
-    number_of_participants: Joi.number().required().label("Number of participants"),
+    number_of_participants: Joi.string().required().label("Number of participants"),
     disclose_suppliers_bid: Joi.boolean().required().label("Disclose suppliers bid"),
     disclose_suppliers_name: Joi.boolean().required().label("Disclose supliers name"),
     disclose_starting_price: Joi.boolean().required().label("Disclose starting price"),

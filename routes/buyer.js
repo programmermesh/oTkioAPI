@@ -22,6 +22,7 @@ const { validateBudget, Budget } = require("../models/budget");
 const { validateDoc, Doc } = require("../models/doc");
 const { Attachment } = require("../models/attachment");
 const { Comment, validateComment } = require("../models/comment");
+const { Supply, validateSupplier, Supplier } = require("../models/supplier");
 const router = express.Router();
 
 const fileStorageEngine = multer.diskStorage({
@@ -262,7 +263,7 @@ router.get("/auctions/supplier/:getAllActionsByEmail", async (req, res) => {
   }
 });
 
-router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
+router.post("/company/addAuction", upload.array("documents", 10), async (req, res) => {
   const { error } = validateAuction(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -382,7 +383,7 @@ router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
   }
 });
 
-router.delete('/:companyId/auctions/:auctionId', async (req, res) => {
+router.delete('/company/:companyId/auctions/:auctionId', async (req, res) => {
   const { auctionId, companyId } = req.params;
 
   try {
@@ -405,7 +406,7 @@ router.delete('/:companyId/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.patch('/:companyId/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
+router.patch('/company/:companyId/auctions/:auctionId', upload.array("documents", 10), async (req, res) => {
   const { auctionId, companyId } = req.params;
 
   const { error } = validateAuction(req.body);
@@ -476,7 +477,7 @@ router.patch('/:companyId/auctions/:auctionId', upload.array("documents", 10), a
 })
 
 
-router.get('/auctions/:auctionId', async (req, res) => {
+router.get('/company/auctions/:auctionId', async (req, res) => {
   const { auctionId } = req.params;
 
   try {
@@ -499,7 +500,7 @@ router.get('/auctions/:auctionId', async (req, res) => {
   }
 });
 
-router.get("/:companyId/auctions", async (req, res) => {
+router.get("/company/:companyId/auctions", async (req, res) => {
   try {
     const auctions = await Auction.find({ companyId });
 
@@ -1701,5 +1702,142 @@ router.delete("/company/deleteTag/:id", async (req, res) => {
     }
   }
 });
+
+router.post("/company/:companyId/addSupplier", async (req, res) => {
+  const { error } = validateSupplier(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let supplier = await Supplier.findOne({ email: req.body.email });
+    if (supplier) {
+      return res.send({
+        responseCode: '99',
+        responseDescription: `Supplier wit email ${req.body.email} already exist`
+      })
+    }
+
+    supplier = new Supplier(_.pick(req.body, [
+      "tags",
+      "email",
+      "country",
+      "category",
+    ]));
+
+    supplier.companyId = req.params.companyId;
+    supplier.main_contact = req.user._id;
+
+    supplier = await supplier.save()
+
+    return res.send({
+      supplier,
+      responseCode: '00',
+      responseDescription: 'Supplier created successfully'
+    })
+  } catch(ex)  {
+    console.log(ex.message);
+  }
+});
+
+router.delete("/company/:companyId/suppliers/:supplierId", async (req, res) => {
+  const { companyId, supplierId} = req.params;
+  try {
+    let supplier = await Supplier.findOne({ _id: supplierId, companyId});
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Supplier with the provided details do not exist"
+      })
+    }
+
+
+    supplier = await supplier.deleteOne();
+
+    return res.send({
+      responseCode: "00",
+      responseDescription: "Supplier deleted successfully"
+    })
+  } catch (ex)  {
+    console.log(ex);
+  }
+})
+
+router.patch("/compnay/:companyId/suppliers/:supplierId", async (req, res) => {
+  const { companyId, supplierId} = req.params;
+  const { tags, email, category, status, country } = req.body;
+
+  const { error } = validateSupplier(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let supplier = await Supplier.findOne({ _id: supplierId, companyId});
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Supplier with the provided details do not exist"
+      })
+    }
+
+    supplier = await Supplier.findByIdAndUpdate(supplierId, { tags,  email, catgory, status, country});
+
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: "Supplier updated successfully"
+    })
+  } catch (ex)  {
+    console.log(ex);
+  }
+});
+
+router.get("/company/:companyId/suppliers", async (req, res ) => {
+  const { companyId } = req.params;
+  let queries = req.query;
+
+  try {
+    queries.company = companyId;
+
+    let suppliers = await Supplier.find({ ...queries});
+
+    if (suppliers.length == 0) {
+      return res.send({
+        responseCode: "00",
+        responseDescription: "No suppliers found"
+      })
+    }
+
+    return res.send({
+      suppliers,
+      responseCode: "00",
+      responseDescription: "Suppliers fetched successfully"
+    })
+  } catch (ex)  {
+    console.log(ex.message);
+  }
+})
+
+router.get('/company/:companyId/suppliers/:supplierId', async (req, res) => {
+  const { companyId, supplierId } = req.params;
+  try {
+    const supplier = await Supplier.findOne({ _id: supplierId, companyId });
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseStatus: `Supplier with the id ${supplierId} does not exist`
+      })
+    }
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: "Supplier fetched successfully"
+    })
+  } catch(ex) {
+    console.log(ex.message)
+  }
+})
 
 module.exports = router;
