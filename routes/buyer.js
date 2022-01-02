@@ -22,6 +22,7 @@ const { validateBudget, Budget } = require("../models/budget");
 const { validateDoc, Doc } = require("../models/doc");
 const { Attachment } = require("../models/attachment");
 const { Comment, validateComment } = require("../models/comment");
+const { Supply, validateSupplier, Supplier } = require("../models/supplier");
 const router = express.Router();
 
 const fileStorageEngine = multer.diskStorage({
@@ -262,100 +263,263 @@ router.get("/auctions/supplier/:getAllActionsByEmail", async (req, res) => {
   }
 });
 
-router.post("/addAuction", upload.array("documents", 10), async (req, res) => {
-  const { error } = validateAuction(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.post(
+  "/company/addAuction",
+  upload.array("documents", 10),
+  async (req, res) => {
+    const { error } = validateAuction(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    try {
+      let auction = new Auction(
+        _.pick(req.body, [
+          "projectId",
+          "auction_type",
+          "auction_name",
+          "description",
+          "startDate",
+          "endDate",
+          "starting_price",
+          "minimum_step",
+          "currency",
+          "cost_center",
+          "budget",
+          "cool_down",
+          "awarding_commitment",
+          "show_to_supplier",
+          "reserve_price",
+          "number_of_participants",
+          "disclose_suppliers_bid",
+          "disclose_suppliers_name",
+          "suppliers",
+          "companyId",
+        ])
+      );
+
+      const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
+      const path = "uploads\\\\";
+
+      const documents = req.files;
+
+      if (req.body.links.length > 0) {
+        auction.links = req.body.links;
+      }
+
+      if (req.body.docs.length > o) {
+        auction.docs = req.body.docs;
+      }
+
+      if (documents.length > 0) {
+        auction.uploads = [];
+        documents.forEach((doc) => {
+          auction.uploads.push({
+            fileName: `${upload_url}${doc.filename}`,
+            path: `${path}${doc.filename}`,
+          });
+        });
+      }
+
+      auction.createdBy = req.user._id;
+
+      auction = await auction.save();
+
+      // const data = req.body.suppliers_email;
+      // data.forEach((items) => {
+      //   auction.auctions.push({
+      //     description: req.body.description,
+      //     name: req.body.name,
+      //     owner: req.body.owner,
+      //     start_date: req.body.start_date,
+      //     end_date: req.body.end_date,
+      //     starting_price: req.body.starting_price,
+      //     cost_center: req.body.cost_center,
+      //     currency: req.body.currency,
+      //     budget: req.body.budget,
+      //     minimum_step: req.body.minimum_step,
+      //     cool_down_period: req.body.cool_down_period,
+      //     item: req.body.item,
+      //     buyer_status: req.body.buyer_status,
+      //     supplier_status: req.body.supplier_status,
+      //     company_buyer_name: req.body.company_buyer_name,
+      //     supplier_email: items,
+      //   });
+      // });
+
+      // (auction.userId = req.body.userId),
+      //   (auction.link = req.body.link),
+      //   (auction = await auction.save());
+
+      // const notification_url = `${process.env.VERIFICATION_URL}`;
+      // // SEND THE SELLER A NOTIFICATION EMAIL
+      // const compose =
+      //   `Hello! <br><br> You have been invited to be part of an auction by <b>${req.body.company_buyer_name}</b>.<br><br>` +
+      //   `Kindly login to OKTIO to see auction.<br>` +
+      //   `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
+      //   `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
+      //   `Best Regards, <br/> OKTIO Team`;
+
+      // const mailOptions = {
+      //   from: "noreply@otkio.com", // sender address
+      //   bcc: `${req.body.suppliers_email}`, // list of receivers
+      //   subject: "Auction Notification", // Subject line
+      //   html: `${compose}`, // html body
+      // };
+
+      // transporter.sendMail(mailOptions, function (error, info) {
+      //   if (error) {
+      //     console.log(error);
+      //   } else {
+      //     console.log("Email sent: " + info.response);
+      //   }
+      // });
+
+      return res.send({
+        auction,
+        responseCode: "00",
+        responseDescription:
+          "Auction created and notification email sent Successfully",
+      });
+    } catch (ex) {
+      console.log(ex.message);
+    }
+  }
+);
+
+router.delete("/company/deleteAuction/:auctionId", async (req, res) => {
+  const { auctionId, companyId } = req.params;
 
   try {
-    let auction = new Auction(
-      _.pick(req.body, [
-        "name",
-        "owner",
-        "description",
-        "start_date",
-        "end_date",
-        "starting_price",
-        "cost_center",
-        "currency",
-        "link",
-        "budget",
-        "minimum_step",
-        "cool_down_period",
-        "item",
-        "suppliers_email",
-        "buyer_status",
-        "supplier_status",
-        "company_buyer_name",
-        "userId",
-      ])
-    );
+    let auction = await Auction.findOne({ _id: auctionId, companyId });
 
-    const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
-    const path = "uploads\\\\";
-
-    const documentsPath = req.files;
-
-    documentsPath.forEach((items) => {
-      auction.documentPath.push({
-        fileName: `${upload_url}${items.filename}`,
-        path: `${path}${items.filename}`,
+    if (!auction) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Auction does not exist",
       });
+    }
+
+    auction = await auction.deleteOne();
+    res.send({
+      responseCode: "00",
+      responseDescription: "Auction deleted successfully",
     });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
 
-    const data = req.body.suppliers_email;
-    data.forEach((items) => {
-      auction.auctions.push({
-        description: req.body.description,
-        name: req.body.name,
-        owner: req.body.owner,
-        start_date: req.body.start_date,
-        end_date: req.body.end_date,
-        starting_price: req.body.starting_price,
-        cost_center: req.body.cost_center,
-        currency: req.body.currency,
-        budget: req.body.budget,
-        minimum_step: req.body.minimum_step,
-        cool_down_period: req.body.cool_down_period,
-        item: req.body.item,
-        buyer_status: req.body.buyer_status,
-        supplier_status: req.body.supplier_status,
-        company_buyer_name: req.body.company_buyer_name,
-        supplier_email: items,
-      });
-    });
+router.patch(
+  "/company/editAuction/:auctionId",
+  upload.array("documents", 10),
+  async (req, res) => {
+    const { auctionId, companyId } = req.params;
 
-    (auction.userId = req.body.userId),
-      (auction.link = req.body.link),
-      (auction = await auction.save());
+    const { error } = validateAuction(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-    const notification_url = `${process.env.VERIFICATION_URL}`;
-    // SEND THE SELLER A NOTIFICATION EMAIL
-    const compose =
-      `Hello! <br><br> You have been invited to be part of an auction by <b>${req.body.company_buyer_name}</b>.<br><br>` +
-      `Kindly login to OKTIO to see auction.<br>` +
-      `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
-      `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
-      `Best Regards, <br/> OKTIO Team`;
+    try {
+      let auction = await Auction.findOne({ _id: auctionId, companyId });
 
-    const mailOptions = {
-      from: "noreply@otkio.com", // sender address
-      bcc: `${req.body.suppliers_email}`, // list of receivers
-      subject: "Auction Notification", // Subject line
-      html: `${compose}`, // html body
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
+      if (!auction) {
+        return res.send({
+          responseCode: "99",
+          responseDescription: "Auction does not exist",
+        });
       }
-    });
-    return res.send({
+
+      auction.auction_name = req.body.auction_name;
+      auction.auction_type = req.body.auction_type;
+      auction.description = req.body.description;
+      auction.startDate = req.body.startDate;
+      auction.endDate = req.body.endDate;
+      auction.starting_price = req.body.starting_price;
+      auction.minimum_step = req.body.minimum_step;
+      auction.currency = req.body.currency;
+      auction.cost_center = req.body.cost_center;
+      auction.cool_down = req.body.cool_down;
+      auction.awarding_commitment = req.body.awarding_commitment;
+      auction.show_to_supplier = req.body.show_to_supplier;
+      auction.reserve_price = req.body.reserve_price;
+      auction.number_of_participants = req.body.number_of_participants;
+      auction.disclose_suppliers_bid = req.body.disclose_suppliers_bid;
+      auction.disclose_suppliers_name = req.body.disclose_suppliers_name;
+      auction.disclose_suppliers_price = req.body.disclose_suppliers_price;
+      auction.disclose_starting_price = req.body.disclose_starting_price;
+      auction.status = req.body.status;
+      auction.suppliers = req.body.suppliers;
+
+      auction.updatedBy = req.user._id;
+
+      const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
+      const path = "uploads\\\\";
+
+      if (req.body.links > 0) {
+        auction.links = req.body.links;
+      }
+
+      if (req.body.docs.length > o) {
+        auction.docs = req.body.docs;
+      }
+
+      if (documents.length > 0) {
+        documents.forEach((doc) => {
+          auction.uploads.push({
+            fileName: `${upload_url}${doc.filename}`,
+            path: `${path}${doc.filename}`,
+          });
+        });
+      }
+
+      auction = await auction.save();
+      res.send({
+        auction,
+        responseCode: "00",
+        responseDescription: "Auction updated successfully",
+      });
+    } catch (ex) {
+      console.log(ex.message);
+    }
+  }
+);
+
+router.get("/company/auctions/:auctionId", async (req, res) => {
+  const { auctionId } = req.params;
+
+  try {
+    const auction = await Auction.findOne({ _id: auctionId });
+
+    if (!auction) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Auction does not exist",
+      });
+    }
+
+    res.send({
       auction,
       responseCode: "00",
-      responseDescription:
-        "Auction created and notification email sent Successfully",
+      responseDescription: "Auction fetched successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/company/:companyId/auctions", async (req, res) => {
+  try {
+    const auctions = await Auction.find({ companyId });
+
+    if (auctions.length < 1) {
+      return res.send({
+        responseCode: "00",
+        responseDescription: "No auction found",
+      });
+    }
+
+    res.send({
+      auctions,
+      responseCode: "00",
+      responseDescription: "Auctions fetched successfully",
     });
   } catch (ex) {
     console.log(ex.message);
@@ -782,6 +946,35 @@ router.delete("/item/deleteItem", async (req, res) => {
     res.send({
       responseCode: "00",
       responseDescription: `Company item deleted Successfully`,
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/item/search", async (req, res) => {
+  let query = req.query.q;
+
+  function escapeRegex(q) {
+    return q.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  }
+
+  try {
+    if (!query) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Query parameter can not be empty",
+      });
+    }
+
+    const items = await Item.find({
+      name: new RegExp(escapeRegex(query), "gi"),
+    });
+
+    return res.send({
+      items,
+      responseCode: "00",
+      responseDescription: "Queried items fetched successfully",
     });
   } catch (ex) {
     console.log(ex.message);
@@ -1513,6 +1706,141 @@ router.delete("/company/deleteTag/:id", async (req, res) => {
     } catch (ex) {
       console.log(ex.message);
     }
+  }
+});
+
+router.post("/company/:companyId/addSupplier", async (req, res) => {
+  const { error } = validateSupplier(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let supplier = await Supplier.findOne({ email: req.body.email });
+    if (supplier) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: `Supplier wit email ${req.body.email} already exist`,
+      });
+    }
+
+    supplier = new Supplier(
+      _.pick(req.body, ["tags", "email", "country", "category"])
+    );
+
+    supplier.companyId = req.params.companyId;
+    supplier.main_contact = req.user._id;
+
+    supplier = await supplier.save();
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: "Supplier created successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.delete("/company/deleteSupplier/:supplierId", async (req, res) => {
+  try {
+    let supplier = await Supplier.findById(req.params.supplierId);
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Supplier with the provided details do not exist",
+      });
+    }
+
+    supplier = await supplier.deleteOne();
+
+    return res.send({
+      responseCode: "00",
+      responseDescription: "Supplier deleted successfully",
+    });
+  } catch (ex) {
+    console.log(ex);
+  }
+});
+
+router.patch("/compnay/editSupplier/:supplierId", async (req, res) => {
+  const { tags, email, category, status, country } = req.body;
+
+  const { error } = validateSupplier(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    let supplier = await Supplier.findById(req.params.supplierId);
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Supplier with the provided details do not exist",
+      });
+    }
+
+    supplier = await Supplier.findByIdAndUpdate(supplierId, {
+      tags,
+      email,
+      catgory,
+      status,
+      country,
+    });
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: "Supplier updated successfully",
+    });
+  } catch (ex) {
+    console.log(ex);
+  }
+});
+
+router.get("/company/:companyId/suppliers", async (req, res) => {
+  const { companyId } = req.params;
+  let queries = req.query;
+
+  try {
+    queries.company = companyId;
+
+    let suppliers = await Supplier.find({ ...queries });
+
+    if (suppliers.length == 0) {
+      return res.send({
+        responseCode: "00",
+        responseDescription: "No suppliers found",
+      });
+    }
+
+    return res.send({
+      suppliers,
+      responseCode: "00",
+      responseDescription: "Suppliers fetched successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.get("/company/suppliers/:supplierId", async (req, res) => {
+  try {
+    const supplier = await Supplier.findById(req.params.supplierId);
+
+    if (!supplier) {
+      return res.send({
+        responseCode: "99",
+        responseStatus: `Supplier with the id ${req.params.supplierId} does not exist`,
+      });
+    }
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: "Supplier fetched successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
   }
 });
 

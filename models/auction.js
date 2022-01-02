@@ -65,6 +65,30 @@ const Auction = mongoose.model(
     disclose_starting_price: {
       type: Boolean,
     },
+    status: {
+      type: String,
+      default: "Published",
+    },
+    uploads: [
+      {
+        fileName: String,
+        path: String,
+      },
+    ],
+    docs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Doc",
+      },
+    ],
+    links: [String],
+    items: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+      },
+    ],
+    suppliers: [String],
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
@@ -73,29 +97,47 @@ const Auction = mongoose.model(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   })
 );
 
 function validateAuction(auction) {
   const schema = Joi.object({
-    name: Joi.string().required().label("Name"),
-    owner: Joi.string().required().label("Owner"),
+    projectId: Joi.string().required().label("ProjectId"),
+    auction_type: Joi.string().required().label("Auction type"),
+    auction_name: Joi.string().required().label("Auction name"),
     description: Joi.string().required().label("Description"),
-    start_date: Joi.string().required().label("Start Date"),
-    end_date: Joi.string().required().label("End Date"),
-    starting_price: Joi.string().required().label("Starting price"),
-    cost_center: Joi.string().required().label("Cost center"),
+    startDate: Joi.date().required().label("Start date"),
+    endDate: Joi.date().required().label("End date"),
+    starting_price: Joi.number().required().label("Starting price"),
+    minimum_step: Joi.number().required().label("Minimum step"),
     currency: Joi.string().required().label("Currency"),
+    cost_center: Joi.string().required().label("Cost center"),
     budget: Joi.string().required().label("Budget"),
-    minimum_step: Joi.string().required().label("Minimum step"),
-    cool_down_period: Joi.string().required().label("Cool down period"),
-    item: Joi.string().required().label("Item"),
-    link: Joi.array().required().label("Link"),
-    suppliers_email: Joi.array().required().label("Suppliers email"),
-    buyer_status: Joi.string().required().label("Buyer status"),
-    supplier_status: Joi.string().required().label("Supplier status"),
-    company_buyer_name: Joi.string().required().label("Company Buyer name"),
-    userId: Joi.string().required().label("UserID"),
+    cool_down: Joi.number().required().label("Cool down period"),
+    awarding_commitment: Joi.boolean().required().label("Awarding commitment"),
+    show_to_supplier: Joi.boolean().required().label("Show to supplier"),
+    reserve_price: Joi.number().required().label("Reserve price"),
+    number_of_participants: Joi.string()
+      .required()
+      .label("Number of participants"),
+    disclose_suppliers_bid: Joi.boolean()
+      .required()
+      .label("Disclose suppliers bid"),
+    disclose_suppliers_name: Joi.boolean()
+      .required()
+      .label("Disclose supliers name"),
+    disclose_starting_price: Joi.boolean()
+      .required()
+      .label("Disclose starting price"),
+    items: Joi.array().items(Joi.string()).required().label("Items"),
+    suppliers: Joi.array().items(Joi.string()).required().label("Suppliers"),
+    docs: Joi.array().items(Joi.string()).required().label("Document"),
+    links: Joi.array().items(Joi.string()).optional().label("Links"),
+    companyId: Joi.string().required().label("CompanyId"),
   });
 
   return schema.validate(auction);
