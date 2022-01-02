@@ -1408,7 +1408,7 @@ router.post("/library/addDoc", upload.single("document"), async (req, res) => {
     res.send({
       doc,
       responseCode: "00",
-      responseDescription: "Item created Successfully",
+      responseDescription: "Dcoument created Successfully",
     });
   } catch (ex) {
     console.log(ex.message);
