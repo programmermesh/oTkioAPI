@@ -376,8 +376,7 @@ router.post(
       return res.send({
         auction,
         responseCode: "00",
-        responseDescription:
-          "Auction created and notification email sent Successfully",
+        responseDescription: "Auction fetched successfully",
       });
     } catch (ex) {
       console.log(ex.message);
@@ -385,7 +384,28 @@ router.post(
   }
 );
 
-router.delete("/company/deleteAuction/:auctionId", async (req, res) => {
+router.get("/company/:companyId/auctions", async (req, res) => {
+  try {
+    const auctions = await Auction.find({ companyId });
+
+    if (auctions.length < 1) {
+      return res.send({
+        responseCode: "00",
+        responseDescription: "No auction found",
+      });
+    }
+
+    res.send({
+      auctions,
+      responseCode: "00",
+      responseDescription: "Auctions fetched successfully",
+    });
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.delete("/company/:companyId/auctions/:auctionId", async (req, res) => {
   const { auctionId, companyId } = req.params;
 
   try {
@@ -409,7 +429,7 @@ router.delete("/company/deleteAuction/:auctionId", async (req, res) => {
 });
 
 router.patch(
-  "/company/editAuction/:auctionId",
+  "/company/:companyId/auctions/:auctionId",
   upload.array("documents", 10),
   async (req, res) => {
     const { auctionId, companyId } = req.params;
@@ -1408,7 +1428,7 @@ router.post("/library/addDoc", upload.single("document"), async (req, res) => {
     res.send({
       doc,
       responseCode: "00",
-      responseDescription: "Dcoument created Successfully",
+      responseDescription: "Document created Successfully",
     });
   } catch (ex) {
     console.log(ex.message);
@@ -1741,9 +1761,10 @@ router.post("/company/:companyId/addSupplier", async (req, res) => {
   }
 });
 
-router.delete("/company/deleteSupplier/:supplierId", async (req, res) => {
+router.delete("/company/:companyId/suppliers/:supplierId", async (req, res) => {
+  const { companyId, supplierId } = req.params;
   try {
-    let supplier = await Supplier.findById(req.params.supplierId);
+    let supplier = await Supplier.findOne({ _id: supplierId, companyId });
 
     if (!supplier) {
       return res.send({
@@ -1763,14 +1784,15 @@ router.delete("/company/deleteSupplier/:supplierId", async (req, res) => {
   }
 });
 
-router.patch("/compnay/editSupplier/:supplierId", async (req, res) => {
+router.patch("/company/:companyId/suppliers/:supplierId", async (req, res) => {
+  const { companyId, supplierId } = req.params;
   const { tags, email, category, status, country } = req.body;
 
   const { error } = validateSupplier(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    let supplier = await Supplier.findById(req.params.supplierId);
+    let supplier = await Supplier.findOne({ _id: supplierId, companyId });
 
     if (!supplier) {
       return res.send({
@@ -1782,7 +1804,7 @@ router.patch("/compnay/editSupplier/:supplierId", async (req, res) => {
     supplier = await Supplier.findByIdAndUpdate(supplierId, {
       tags,
       email,
-      catgory,
+      category,
       status,
       country,
     });
@@ -1823,14 +1845,15 @@ router.get("/company/:companyId/suppliers", async (req, res) => {
   }
 });
 
-router.get("/company/suppliers/:supplierId", async (req, res) => {
+router.get("/company/:companyId/suppliers/:supplierId", async (req, res) => {
+  const { companyId, supplierId } = req.params;
   try {
-    const supplier = await Supplier.findById(req.params.supplierId);
+    const supplier = await Supplier.findOne({ _id: supplierId, companyId });
 
     if (!supplier) {
       return res.send({
         responseCode: "99",
-        responseStatus: `Supplier with the id ${req.params.supplierId} does not exist`,
+        responseStatus: `Supplier with the id ${supplierId} does not exist`,
       });
     }
 

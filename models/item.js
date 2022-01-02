@@ -36,6 +36,9 @@ const ItemSchema = new mongoose.Schema({
       path: String,
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2f81b6b481b37baa21946298b18e45e19a2e6afa
   ],
   link: {
     type: String,
@@ -50,6 +53,7 @@ const ItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+<<<<<<< HEAD
 });
 
 ItemSchema.index({ item_name: text });
@@ -105,6 +109,13 @@ const Item = mongoose.model("Item", ItemSchema);
   })
 );
 >>>>>>> 6cea535db88318b5b16cabe09451d8d5448d507d
+=======
+})
+
+ItemSchema.index({ item_name: text })
+
+const Item = mongoose.model("Item", ItemSchema);
+>>>>>>> 2f81b6b481b37baa21946298b18e45e19a2e6afa
 
 function validateItem(item) {
   const schema = Joi.object({
