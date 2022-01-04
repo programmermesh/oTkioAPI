@@ -1441,7 +1441,6 @@
       }
     },
     "api/buyer/company/editAuction/{auctionId}": {
-      },
       "patch": {
         "tags": ["Buyer"],
         "summary": "delete an auction from a company",
@@ -1907,35 +1906,6 @@
         ]
       }
     },
-    "/api/company/addSupplierToCompany": {
-      "post": {
-        "tags": ["Company"],
-        "summary": "Add company Supplier to be part of a company",
-        "parameters": [
-          {
-            "name": "Add supplier",
-            "in": "body",
-            "description": "Suppliers to be created",
-            "schema": {
-              "$ref": "#/definitions/addSupplierToCompany"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful",
-            "schema": {
-              "$ref": "#/definitions/addSupplierToCompany"
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/buyer/item/deleteDocument": {
       "patch": {
         "tags": ["Buyer"],
@@ -2271,35 +2241,6 @@
         }
       }
     },
-    "/api/company/deleteSupplierFromCompany": {
-      "delete": {
-        "tags": ["Company"],
-        "summary": "Delete company Supplier to be part of a company",
-        "parameters": [
-          {
-            "name": "Delete supplier",
-            "in": "body",
-            "description": "Suppliers to be deleted",
-            "schema": {
-              "$ref": "#/definitions/deleteSupplierFromCompany"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful",
-            "schema": {
-              "$ref": "#/definitions/deleteSupplierFromCompany"
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/buyer/company/{companyId}/suppliers/addSupplier": {
       "post": {
         "tags":["Buyer"],
@@ -2329,7 +2270,7 @@
         }
       }
     },
-    "/api/buyer/company/suppliers/{supplierId}": {
+    "/api/buyer/company/suppliers/{supplierId}/deleteSupplier": {
       "delete": {
         "tags": ["Buyer"],
         "summary": "delete supplier from a compnay",
@@ -2354,7 +2295,9 @@
             "description": "Failure"
           }
         }
-      },
+      }
+    },
+    "/api/buyer/company/suppliers/{supplierId}/editSupplier": {
       "patch": {
         "tags": ["Buyer"],
         "summary": "delete supplier from a compnay",
@@ -2368,7 +2311,7 @@
             }
           },
           {
-            "name": "Add Supplier",
+            "name": "Supplier",
             "in": "body",
             "description": "Supplier to be updated",
             "schema": {
@@ -2387,7 +2330,9 @@
             "description": "Failure"
           }
         }
-      },
+      }
+    },
+    "/api/buyer/company/suppliers/{supplierId}": {
       "get": {
         "tags": ["Buyer"],
         "summary": "get a single supplier",
@@ -2434,7 +2379,7 @@
             "schema": {
               "$ref": "#/definitions/editSupplier"
             }
-          },
+          }
         }
       }
     }

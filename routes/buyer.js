@@ -3,7 +3,6 @@ const { transporter } = require("../middleware/sendEmail");
 const fs = require("fs");
 const _ = require("lodash");
 const { Project, validateProject } = require("../models/project");
-const { Company, validateCompany } = require("../models/company");
 const { Tag, validateTag } = require("../models/tag");
 const {
   ItemsCatAndGroup,
@@ -16,14 +15,20 @@ const {
 const { CostCenter, validateCostCenter } = require("../models/costCenter");
 const { Item, validateItem } = require("../models/item");
 const { Auction, validateAuction } = require("../models/auction");
-const multer = require("multer");
+const multer = require("multer")
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const { validateBudget, Budget } = require("../models/budget");
 const { validateDoc, Doc } = require("../models/doc");
 const { Attachment } = require("../models/attachment");
 const { Comment, validateComment } = require("../models/comment");
-const { Supply, validateSupplier, Supplier } = require("../models/supplier");
 const router = express.Router();
+
+const { Supplier, validateSupplier } = require("../models/supplier");
+const { Company, validateCompany } = require("../models/company");
+const { User } = require('../models/user');
+
+
 
 const fileStorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -1742,36 +1747,36 @@ router.delete("/company/deleteTag/:id", async (req, res) => {
  * SUppliers Endpoints
  * */
 
-router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
+router.post("/company/:companyId/suppliers/addSupplier", [authGuard, admin], async (req, res) => {
   const { error } = validateSupplier(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    const { user, params: { companyId } } = req;
+    const { params: { companyId } } = req;
 
     const notification_url = `${process.env.VERIFICATION_URL}`;
 
-    const company = await Company.findById(companyId);
+    const supplierUserAdmin = await User.findOne({ email: req.body.email });
 
-    if (!user.isAdmin) {
-      return res.send({
-        responseCode: "99",
-        responseDescription: "Only admins are authorized to add supplier"
-      })
-    }
-
-    const supplierUser = await User.findOne({ email: re.body.email });
-
-    if (supplier && !supplierUser.isAdmin) {
+    if (supplierUserAdmin && !supplierUserAdmin.isAdmin) {
       return res.send({
         responseCode: "99",
         responseDescription: "Only admin of the company can be added as a supplier, please kindly provided admin email of the company"
       })
     }
 
-    let supplier = await Supplier.findOne({ email: req.body.email, companyId });
+    // let supplier = await Supplier.findOne({ email: req.body.email, companyId });
 
-    if (supplier) {
+    if (supplierUserAdmin && supplierUserAdmin.isAdmin) {
+      let supplier = new Supplier(
+        _.pick(req.body, ["tags", "email", "country", "category"])
+      );
+
+      supplier.companyId = req.params.companyId;
+      supplier.main_contact = req.user._id;
+      supplier.supplierCompany = supplierUserAdmin.company;
+
+      supplier = await supplier.save();
       const compose =
         `Hello! <br><br> You have been invited to be part of an auction by <b>${company.name}</b>.<br><br>` +
         `Kindly login to OKTIO to see auction.<br>` +
@@ -1781,7 +1786,7 @@ router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
 
       const mailOptions = {
         from: "noreply@otkio.com", // sender address
-        bcc: `${supplier.email}`, // list of receivers
+        bcc: `${supplierUserAdmin.email}`, // list of receivers
         subject: "Supplier Invitation", // Subject line
         html: `${compose}`, // html body
       };
@@ -1794,25 +1799,45 @@ router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
           return res.send({
             supplier,
             responseCode: "00",
-            responseDescription: `An invitation message has been sent to ${supplier.email}`,
+            responseDescription: `An invitation message has been sent to ${supplierUserAdmin.email}`,
           });
         }
-      });
+      })
     }
 
-    supplier = new Supplier(
+    const company = await Company.create({
+      company_name: req.body.company_name,
+      country: req.body.country,
+      email: req.body.email
+    })
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(req.body.email, salt);
+
+    const user = await User.create({
+      email: req.body.email,
+      password: hash,
+      isInvited: true,
+      isSeller: true,
+      isBuyer: true,
+      isVerified: true,
+    })
+
+    let supplier = new Supplier(
       _.pick(req.body, ["tags", "email", "country", "category"])
     );
 
     supplier.companyId = req.params.companyId;
     supplier.main_contact = req.user._id;
+    supplier.supplierCompany = company._id;
 
     supplier = await supplier.save();
 
     const compose =
-      `Hello! <br><br> You have been invited to be part of an auction by <b>${company.name}</b>.<br><br>` +
+      `Hello! <br><br> You have been invited by a company to be their supplier <b>${company.name}</b>.<br><br>` +
       `Kindly visit  to OKTIO to create an accounnt.<br>` +
       `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
+      `Use your email "${supplier.email}" as your email and password (No registration needed).` +
       `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
       `Best Regards, <br/> OKTIO Team`;
 
@@ -1828,19 +1853,20 @@ router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
         console.log(error);
       } else {
         console.log("Email sent: " + info.response);
-        return res.send({
-          supplier,
-          responseCode: "00",
-          responseDescription: `Supplier has been created. An invitation message has been sent to ${supplier.email}`,
-        });
       }
+    });
+
+    return res.send({
+      supplier,
+      responseCode: "00",
+      responseDescription: `Supplier has been created. An invitation message has been sent to ${supplier.email}`,
     });
   } catch (ex) {
     console.log(ex.message);
   }
 });
 
-router.delete("/company/suppliers/:supplierId", async (req, res) => {
+router.delete("/company/suppliers/:supplierId/deleteSupplier", async (req, res) => {
   const { supplierId } = req.params;
   try {
     let supplier = await Supplier.findOne({ _id: supplierId });
@@ -1863,9 +1889,9 @@ router.delete("/company/suppliers/:supplierId", async (req, res) => {
   }
 });
 
-router.patch("/company/suppliers/:supplierId", async (req, res) => {
+router.patch("/company/suppliers/:supplierId/editSupplier", async (req, res) => {
   const { supplierId } = req.params;
-  const { tags, email, category, status, country } = req.body;
+  const { tags, category, status, country } = req.body;
 
   const { error } = validateSupplier(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -1882,7 +1908,6 @@ router.patch("/company/suppliers/:supplierId", async (req, res) => {
 
     supplier = await Supplier.findByIdAndUpdate(supplierId, {
       tags,
-      email,
       category,
       status,
       country,
