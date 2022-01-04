@@ -1747,11 +1747,56 @@ router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    let supplier = await Supplier.findOne({ email: req.body.email, companyId });
-    if (supplier) {
+    const { user, params: { companyId } } = req;
+
+    const notification_url = `${process.env.VERIFICATION_URL}`;
+
+    const company = await Company.findById(companyId);
+
+    if (!user.isAdmin) {
       return res.send({
         responseCode: "99",
-        responseDescription: `Supplier with email ${req.body.email} already exist`,
+        responseDescription: "Only admins are authorized to add supplier"
+      })
+    }
+
+    const supplierUser = await User.findOne({ email: re.body.email });
+
+    if (supplier && !supplierUser.isAdmin) {
+      return res.send({
+        responseCode: "99",
+        responseDescription: "Only admin of the company can be added as a supplier, please kindly provided admin email of the company"
+      })
+    }
+
+    let supplier = await Supplier.findOne({ email: req.body.email, companyId });
+
+    if (supplier) {
+      const compose =
+        `Hello! <br><br> You have been invited to be part of an auction by <b>${company.name}</b>.<br><br>` +
+        `Kindly login to OKTIO to see auction.<br>` +
+        `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
+        `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
+        `Best Regards, <br/> OKTIO Team`;
+
+      const mailOptions = {
+        from: "noreply@otkio.com", // sender address
+        bcc: `${supplier.email}`, // list of receivers
+        subject: "Supplier Invitation", // Subject line
+        html: `${compose}`, // html body
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+          return res.send({
+            supplier,
+            responseCode: "00",
+            responseDescription: `An invitation message has been sent to ${supplier.email}`,
+          });
+        }
       });
     }
 
@@ -1764,10 +1809,31 @@ router.post("/company/:companyId/suppliers/addSupplier", async (req, res) => {
 
     supplier = await supplier.save();
 
-    return res.send({
-      supplier,
-      responseCode: "00",
-      responseDescription: "Supplier created successfully",
+    const compose =
+      `Hello! <br><br> You have been invited to be part of an auction by <b>${company.name}</b>.<br><br>` +
+      `Kindly visit  to OKTIO to create an accounnt.<br>` +
+      `<h5><a style="color: #ee491f;" href="${notification_url}">Click here</a></h5><br> ` +
+      `<p>Thank you for joining <span style="color: #ee491f;"><b>Oktio</b></span> and we look forward to seeing you onboard.</p>` +
+      `Best Regards, <br/> OKTIO Team`;
+
+    const mailOptions = {
+      from: "noreply@otkio.com", // sender address
+      bcc: `${supplier.email}`, // list of receivers
+      subject: "Supplier Invitation", // Subject line
+      html: `${compose}`, // html body
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+        return res.send({
+          supplier,
+          responseCode: "00",
+          responseDescription: `Supplier has been created. An invitation message has been sent to ${supplier.email}`,
+        });
+      }
     });
   } catch (ex) {
     console.log(ex.message);
