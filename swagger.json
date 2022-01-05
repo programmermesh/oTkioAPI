@@ -2257,10 +2257,12 @@
           {
             "name": "companyId",
             "in": "path",
-            "description": "company to whom supplier is going to be added"
+            "description": "company to whom supplier is going to be added",
+            "type": "string",
+            "required": true
           }
         ],
-        "response": {
+        "responses": {
           "200": {
             "description": "Successful",
             "schema": {
@@ -2284,7 +2286,7 @@
             }
           }
         ],
-        "response": {
+        "responses": {
           "200": {
             "description": "Sucessful",
             "schema": {
@@ -2319,7 +2321,7 @@
             }
           }
         ],
-        "response": {
+        "responses": {
           "200": {
             "description": "Sucessful",
             "schema": {
@@ -2346,7 +2348,7 @@
             }
           }
         ],
-        "response": {
+        "responses": {
           "200": {
             "description": "Successful",
             "schema": {
@@ -2373,7 +2375,7 @@
             }
           }
         ],
-        "response": {
+        "responses": {
           "200": {
             "description": "Successful",
             "schema": {
