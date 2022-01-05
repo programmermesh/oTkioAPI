@@ -35,12 +35,6 @@ const SupplierSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Supplier_Category",
     },
-    tags: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Tag",
-      },
-    ],
   },
   {
     timestamps: true,
@@ -59,7 +53,6 @@ function validateSupplier(supplier) {
     country: Joi.string().required().label("Country"),
     category: Joi.string().required().label("Category"),
     userId: Joi.string().required().label("User ID"),
-    tags: Joi.array().items(Joi.string()).optional().label(" Tags of the user"),
   });
 
   return schema.validate(supplier);

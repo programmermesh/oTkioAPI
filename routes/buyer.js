@@ -24,6 +24,8 @@ const { Attachment } = require("../models/attachment");
 const { Comment, validateComment } = require("../models/comment");
 const router = express.Router();
 
+const { generateVerifyToken } = require("../middleware/auth");
+
 const { Supplier, validateSupplier } = require("../models/supplier");
 const { Company, validateCompany } = require("../models/company");
 const { User } = require("../models/user");
@@ -1806,7 +1808,19 @@ router.post(
           }
         });
       } else {
-        const company = await Company.create({
+        let company = await Company.findOne({
+          name: req.body.supplier_company_name,
+        });
+
+        if (company) {
+          return res.send({
+            responseCode: "99",
+            responseDescripiton:
+              "Supplier Company already exist, to continue get company admin email ",
+          });
+        }
+
+        company = await Company.create({
           company_name: req.body.supplier_company_name,
           country: req.body.country,
           email: req.body.email,
@@ -1814,6 +1828,8 @@ router.post(
 
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(req.body.email, salt);
+
+        const token = generateVerifyToken(req.body.email);
 
         await User.create({
           email: req.body.email,
@@ -1824,10 +1840,11 @@ router.post(
           isVerified: true,
           isAdmin: true,
           company: company._id,
+          confirmationCode: token,
         });
 
         let supplier = new Supplier(
-          _.pick(req.body, ["tags", "email", "country", "category"])
+          _.pick(req.body, ["email", "country", "category"])
         );
 
         supplier.companyId = req.params.companyId;
