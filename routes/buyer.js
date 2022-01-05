@@ -24,6 +24,8 @@ const { Attachment } = require("../models/attachment");
 const { Comment, validateComment } = require("../models/comment");
 const router = express.Router();
 
+const { generateVerifyToken } = require("../middleware/auth");
+
 const { Supplier, validateSupplier } = require("../models/supplier");
 const { Company, validateCompany } = require("../models/company");
 const { User } = require("../models/user");
@@ -1824,6 +1826,8 @@ router.post(
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(req.body.email, salt);
 
+        const token = generateVerifyToken(req.body.email);
+
         await User.create({
           email: req.body.email,
           password: hash,
@@ -1833,6 +1837,7 @@ router.post(
           isVerified: true,
           isAdmin: true,
           company: company._id,
+          confirmationCode: token
         });
 
         let supplier = new Supplier(
