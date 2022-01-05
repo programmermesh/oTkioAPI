@@ -3432,7 +3432,14 @@
       }
     },
     "addSupplier": {
-      "required": ["userId", "email", "country", "category", "company_name"],
+      "required": [
+        "userId",
+        "email",
+        "country",
+        "category",
+        "company_name",
+        "supplier_company_name"
+      ],
       "properties": {
         "userId": {
           "type": "string"
@@ -3449,10 +3456,13 @@
             "type": "string"
           }
         },
-        "catgory": {
+        "category": {
           "type": "string"
         },
         "company_name": {
+          "type": "string"
+        },
+        "supplier_company_name": {
           "type": "string"
         }
       }

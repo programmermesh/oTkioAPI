@@ -52,6 +52,9 @@ const Supplier = model("Supplier", SupplierSchema);
 function validateSupplier(supplier) {
   const schema = Joi.object({
     email: Joi.string().min(3).email().required().label("Email"),
+    supplier_company_name: Joi.string()
+      .required()
+      .label("Supplier Company Name"),
     company_name: Joi.string().required().label("Company Name"),
     country: Joi.string().required().label("Country"),
     category: Joi.string().required().label("Category"),

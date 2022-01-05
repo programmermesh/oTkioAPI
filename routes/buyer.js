@@ -1800,7 +1800,7 @@ router.post(
         });
       } else {
         const company = await Company.create({
-          company_name: req.body.company_name,
+          company_name: req.body.supplier_company_name,
           country: req.body.country,
           email: req.body.email,
         });
