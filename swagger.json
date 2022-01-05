@@ -3452,12 +3452,6 @@
         "country": {
           "type": "string"
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "category": {
           "type": "string"
         },
@@ -3473,8 +3467,6 @@
       "required": [
         "email",
         "country",
-        "tags",
-        "country",
         "status",
         "companyId"
       ],
@@ -3484,12 +3476,6 @@
         },
         "country": {
           "type": "string"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "catgeory": {
           "type": "string"
