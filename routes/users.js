@@ -120,6 +120,8 @@ router.post("/", async (req, res) => {
 
         let company = new Company();
         company.company_name = req.body.company_name;
+        company.country = req.body.country;
+        company.email = req.body.email;
 
         await company.save();
         user.company = company._id;

@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const user = require("./user.js");
 const mongoose = require("mongoose");
 
 const ItemSchema = new mongoose.Schema({
@@ -35,10 +34,6 @@ const ItemSchema = new mongoose.Schema({
       fileName: String,
       path: String,
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 2f81b6b481b37baa21946298b18e45e19a2e6afa
   ],
   link: {
     type: String,
@@ -53,69 +48,11 @@ const ItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-<<<<<<< HEAD
 });
 
-ItemSchema.index({ item_name: text });
+ItemSchema.index({ item_name: "text" });
 
 const Item = mongoose.model("Item", ItemSchema);
-=======
-    itemId: {
-      type: String,
-    },
-    manufacturer: {
-      type: String,
-    },
-    notes: {
-      type: String,
-    },
-    unit: {
-      type: String,
-    },
-    category: {
-      type: String,
-    },
-    group: {
-      type: String,
-    },
-    model: {
-      type: String,
-    },
-    tagss: {
-      type: String,
-    },
-    image_upload: {
-      type: String,
-    },
-    document: [
-      {
-        fileName: String,
-        path: String,
-      },
-    ],
-    link: {
-      type: String,
-    },
-    status: {
-      type: String,
-    },
-    company_name: {
-      type: String,
-    },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  })
-);
->>>>>>> 6cea535db88318b5b16cabe09451d8d5448d507d
-=======
-})
-
-ItemSchema.index({ item_name: text })
-
-const Item = mongoose.model("Item", ItemSchema);
->>>>>>> 2f81b6b481b37baa21946298b18e45e19a2e6afa
 
 function validateItem(item) {
   const schema = Joi.object({
