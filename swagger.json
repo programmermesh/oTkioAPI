@@ -3450,12 +3450,6 @@
         "country": {
           "type": "string"
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "category": {
           "type": "string"
         },
