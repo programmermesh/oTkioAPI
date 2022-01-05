@@ -22,6 +22,10 @@ const SupplierSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Company",
     },
+    supplier_company: {
+        type: Schema.Types.ObjectId,
+        ref: 'Company'
+    },
     status: {
       type: String,
       enum: ["Active", "Inactive"],
