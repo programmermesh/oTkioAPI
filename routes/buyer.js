@@ -1751,12 +1751,13 @@ router.post(
     const { error } = validateSupplier(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     try {
-      const notification_url = `${process.env.VERIFICATION_URL}`;
-
-      const supplierCompanyAdmin = await User.findOne({
-        email: req.body.email,
-      });
-
+      let supplier = await Supplier.findOne({ email: req.body.email });
+      if (supplier) {
+        return res.send({
+          responseCode: "99",
+          responseDescription: `Supplier with email ${req.body.email} already exist`,
+        });
+      }
       if (supplierCompanyAdmin && !supplierCompanyAdmin.isAdmin) {
         return res.send({
           responseCode: "99",

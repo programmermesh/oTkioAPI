@@ -1357,7 +1357,7 @@
         ]
       }
     },
-    "/api/buyer/{companyId}/auctions": {
+    "/api/buyer/company/{companyId}/auctions": {
       "get": {
         "tags": ["Buyer"],
         "summary": "Get all company auctions",
@@ -1383,7 +1383,7 @@
         ]
       }
     },
-    "api/buyer/auctions/{auctionId}": {
+    "api/buyer/company/auctions/{auctionId}": {
       "get": {
         "tags": ["Buyer"],
         "summary": "Get a single auction document with an unique id",
@@ -1409,7 +1409,7 @@
         ]
       }
     },
-    "api/buyer/{companyId}/auctions/{auctionId]": {
+    "api/buyer/company/deleteAuction/{auctionId}": {
       "delete": {
         "tags": ["Buyer"],
         "summary": "delete an auction from a company",
