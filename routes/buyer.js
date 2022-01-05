@@ -1773,7 +1773,7 @@ router.post(
         });
       } else if (supplierCompanyAdmin && supplierCompanyAdmin.isAdmin) {
         let supplier = new Supplier(
-          _.pick(req.body, ["tags", "email", "country", "category"])
+          _.pick(req.body, ["email", "country", "category"])
         );
 
         supplier.companyId = req.params.companyId;
@@ -1935,7 +1935,6 @@ router.patch(
       }
 
       supplier = await Supplier.findByIdAndUpdate(supplierId, {
-        tags,
         category,
         status,
         country,
@@ -1959,8 +1958,7 @@ router.get("/company/:companyId/suppliers", async (req, res) => {
     })
       .populate({ path: "supplier_company", select: "company_name" })
       .populate({ path: "main_contact", select: "-_id first_name last_name" })
-      .populate({ path: "category", select: "-_id name" })
-      .populate("tags");
+      .populate({ path: "category", select: "-_id name" });
 
     if (suppliers.length == 0) {
       return res.send({
@@ -1984,13 +1982,12 @@ router.get("/company/suppliers/:supplierId", async (req, res) => {
     const supplier = await Supplier.findById(req.params.supplierId)
       .populate({ path: "supplier_company", select: "company_name" })
       .populate({ path: "main_contact", select: "-_id first_name last_name" })
-      .populate({ path: "category", select: "-_id name" })
-      .populate("tags");
+      .populate({ path: "category", select: "-_id name" });
 
     if (!supplier) {
       return res.send({
         responseCode: "99",
-        responseStatus: `Supplier with the id ${supplierId} does not exist`,
+        responseStatus: `Supplier with the id ${req.params.supplierId} does not exist`,
       });
     }
 
