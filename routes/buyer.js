@@ -314,7 +314,6 @@ router.post(
           let payload = {};
           payload.supplier = sup;
           payload.status = "Pending";
-          payload.starting_price = req.body.starting_price;
           suppliers.push(payload);
         });
       }
@@ -430,11 +429,11 @@ router.get("/company/:companyId/auctions", async (req, res) => {
   }
 });
 
-router.delete("/company/:companyId/auctions/:auctionId", async (req, res) => {
-  const { auctionId, companyId } = req.params;
+router.delete("/company/deleteAuction/:auctionId", async (req, res) => {
+  const { auctionId } = req.params;
 
   try {
-    let auction = await Auction.findOne({ _id: auctionId, companyId });
+    let auction = await Auction.findOne({ _id: auctionId });
 
     if (!auction) {
       return res.send({
@@ -454,16 +453,16 @@ router.delete("/company/:companyId/auctions/:auctionId", async (req, res) => {
 });
 
 router.patch(
-  "/company/:companyId/auctions/:auctionId",
+  "/company/editAuction/:auctionId",
   upload.array("documents", 10),
   async (req, res) => {
-    const { auctionId, companyId } = req.params;
+    const { auctionId } = req.params;
 
     const { error } = validateAuction(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-      let auction = await Auction.findOne({ _id: auctionId, companyId });
+      let auction = await Auction.findOne({ _id: auctionId });
 
       if (!auction) {
         return res.send({
@@ -531,7 +530,46 @@ router.get("/company/auctions/:auctionId", async (req, res) => {
   const { auctionId } = req.params;
 
   try {
-    const auction = await Auction.findOne({ _id: auctionId });
+    const auction = await Auction.findOne({ _id: auctionId })
+      .populate({ path: "projectId", select: "company_name" })
+      .populate({
+        path: "comments",
+        populate: [
+          { path: "user", select: "first_name last_name" },
+          {
+            path: "replies",
+            select: "content user",
+            populate: { path: "user", select: "first_name last_name" },
+          },
+        ],
+      })
+      .populate({ path: "docs", select: "name document " })
+      .populate({ path: "createdBy", select: "first_name last_name" })
+      .populate({
+        path: "attachments",
+        select: "name note attachment link doc createdBy",
+        populate: [
+          { path: "createdBy", select: "first_name last_name" },
+          {
+            path: "doc",
+            select: "name document",
+          },
+        ],
+      })
+      .populate({
+        path: "items",
+        select: "name unit status manufacturer image_upload",
+      })
+      .populate({
+        path: "suppliers",
+        populate: [
+          {
+            path: "supplier",
+            select: "supplier_company status email",
+            populate: [{ path: "supplier_company", select: "company_name" }],
+          },
+        ],
+      });
 
     if (!auction) {
       return res.send({
@@ -552,7 +590,46 @@ router.get("/company/auctions/:auctionId", async (req, res) => {
 
 router.get("/company/:companyId/auctions", async (req, res) => {
   try {
-    const auctions = await Auction.find({ companyId });
+    const auctions = await Auction.find({ companyId })
+      .populate({ path: "projectId", select: "company_name" })
+      .populate({
+        path: "comments",
+        populate: [
+          { path: "user", select: "first_name last_name" },
+          {
+            path: "replies",
+            select: "content user",
+            populate: { path: "user", select: "first_name last_name" },
+          },
+        ],
+      })
+      .populate({ path: "docs", select: "name document " })
+      .populate({ path: "createdBy", select: "first_name last_name" })
+      .populate({
+        path: "attachments",
+        select: "name note attachment link doc createdBy",
+        populate: [
+          { path: "createdBy", select: "first_name last_name" },
+          {
+            path: "doc",
+            select: "name document",
+          },
+        ],
+      })
+      .populate({
+        path: "items",
+        select: "name unit status manufacturer image_upload",
+      })
+      .populate({
+        path: "suppliers",
+        populate: [
+          {
+            path: "supplier",
+            select: "supplier_company status email",
+            populate: [{ path: "supplier_company", select: "company_name" }],
+          },
+        ],
+      });
 
     if (auctions.length < 1) {
       return res.send({
@@ -576,7 +653,7 @@ router.post("/company/auction/addComment/:auctionId", async (req, res) => {
     const { error } = validateComment(body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const auction = await Auction.findById(req.params.auctionId);
+    let auction = await Auction.findById(req.params.auctionId);
 
     if (!auction) {
       return res.send({
@@ -586,9 +663,9 @@ router.post("/company/auction/addComment/:auctionId", async (req, res) => {
     }
 
     if (req.body.replyingTo) {
-      const existComment = await Comment.findById(req.body.replyingTo);
+      const commentExists = await Comment.findById(req.body.replyingTo);
 
-      if (!iexistCComment) {
+      if (!commentExists) {
         return res.send({
           responseCode: "99",
           responseDescription: "Provided Comment does not exist",
@@ -603,9 +680,9 @@ router.post("/company/auction/addComment/:auctionId", async (req, res) => {
 
       comment = await comment.save();
 
-      existComment.replies(comment._id);
+      commentExists.replies(comment._id);
 
-      await exist;
+      await commentExists.save();
 
       return res.send({
         comment,
@@ -618,6 +695,10 @@ router.post("/company/auction/addComment/:auctionId", async (req, res) => {
       comment.auctionId = req.params.auctionId;
 
       comment = await comment.save();
+
+      auction.comments.push(comment._id);
+
+      await auction.save();
 
       return res.send({
         comment,
