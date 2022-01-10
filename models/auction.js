@@ -82,13 +82,68 @@ const Auction = mongoose.model(
       },
     ],
     links: [String],
+    attachments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Attachment",
+      },
+    ],
     items: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
       },
     ],
-    suppliers: [String],
+    suppliers: [
+      {
+        supplier: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Supplier",
+        },
+        status: {
+          type: String,
+          enum: ["Accepted", "Rejected", "Participated", "Pending"],
+          default: "Pending",
+        },
+        number_of_bids: {
+          type: Number,
+          default: 0,
+        },
+        starting_price: {
+          type: Number,
+          default: 0,
+        },
+        bonus_walus: {
+          type: Number,
+          default: 0,
+        },
+        bonus_walus_amount: {
+          type: Number,
+          default: 0,
+        },
+        final_bid: {
+          type: Number,
+          default: 0,
+        },
+        weighted_bid: {
+          type: Number,
+          default: 0,
+        },
+        invited_sellers: [String],
+        named_items: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Item",
+          },
+        ],
+        bids: [
+          {
+            index: Number,
+            amount: Number,
+          },
+        ],
+      },
+    ],
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",

@@ -26,6 +26,10 @@ const Attachment = mongoose.model(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
     },
+    auctionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Auction",
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

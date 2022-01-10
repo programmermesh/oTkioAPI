@@ -21,7 +21,6 @@ const bcrypt = require("bcrypt");
 const { validateBudget, Budget } = require("../models/budget");
 const { validateDoc, Doc } = require("../models/doc");
 const { Attachment } = require("../models/attachment");
-const { Comment, validateComment } = require("../models/comment");
 const router = express.Router();
 
 const { generateVerifyToken } = require("../middleware/auth");
@@ -29,6 +28,7 @@ const { generateVerifyToken } = require("../middleware/auth");
 const { Supplier, validateSupplier } = require("../models/supplier");
 const { Company, validateCompany } = require("../models/company");
 const { User } = require("../models/user");
+const { Comment, validateComment } = require("../models/comment");
 
 const fileStorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -276,7 +276,7 @@ router.get("/auctions/supplier/:getAllActionsByEmail", async (req, res) => {
  */
 
 router.post(
-  "/company/addAuction",
+  "/company/auctions/addAuction",
   upload.array("documents", 10),
   async (req, res) => {
     const { error } = validateAuction(req.body);
@@ -303,10 +303,23 @@ router.post(
           "number_of_participants",
           "disclose_suppliers_bid",
           "disclose_suppliers_name",
-          "suppliers",
           "companyId",
         ])
       );
+
+      let suppliers = [];
+
+      if (req.body.suppliers.length > 0) {
+        req.body.suppliers.forEach((sup) => {
+          let payload = {};
+          payload.supplier = sup;
+          payload.status = "Pending";
+          payload.starting_price = req.body.starting_price;
+          suppliers.push(payload);
+        });
+      }
+
+      auction.suppliers = suppliers;
 
       const upload_url = `${process.env.VERIFICATION_URL}/uploads/`;
       const path = "uploads\\\\";
@@ -557,6 +570,110 @@ router.get("/company/:companyId/auctions", async (req, res) => {
     console.log(ex.message);
   }
 });
+
+router.post("/company/auction/addComment/:auctionId", async (req, res) => {
+  try {
+    const { error } = validateComment(body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const auction = await Auction.findById(req.params.auctionId);
+
+    if (!auction) {
+      return res.send({
+        responseCode: "99",
+        responseDescripiton: "Auction does not exist",
+      });
+    }
+
+    if (req.body.replyingTo) {
+      const existComment = await Comment.findById(req.body.replyingTo);
+
+      if (!iexistCComment) {
+        return res.send({
+          responseCode: "99",
+          responseDescription: "Provided Comment does not exist",
+        });
+      }
+
+      let comment = new Comment(
+        _.pick(req.body, ["content", "replyingTo", "userId"])
+      );
+
+      comment.auctionId = req.params.auctionId;
+
+      comment = await comment.save();
+
+      existComment.replies(comment._id);
+
+      await exist;
+
+      return res.send({
+        comment,
+        responseCode: "00",
+        responseDescription: "Reply has been added to comment",
+      });
+    } else {
+      let comment = new Comment(_.pick(req.body, ["content", "userId"]));
+
+      comment.auctionId = req.params.auctionId;
+
+      comment = await comment.save();
+
+      return res.send({
+        comment,
+        responseCode: "00",
+        responseDescription: "Comment has been created successfully",
+      });
+    }
+  } catch (ex) {
+    console.log(ex.message);
+  }
+});
+
+router.post(
+  "/company/auctions/addAttachment/:auctionId",
+  upload.single("document"),
+  async (req, res) => {
+    try {
+      let attachment = new Attachment(_.pick(req.body, ["name", "note"]));
+      attachment.auctionId = req.params.auctionId;
+      attachment.createdBy = req.body.userId;
+
+      if (req.body.link) {
+        attachment.link = req.body.link;
+      } else if (req.body.doc) {
+        attachment.doc = req.body.doc;
+      } else {
+        const url = `${process.env.VERIFICATION_URL}/uploads/`;
+        const path = "uploads\\\\";
+
+        const document = req.file;
+
+        attachment.document = {
+          fileName: `${url}${document.filename}`,
+          path: `${path}${document.filename}`,
+        };
+      }
+
+      attachment = await attachment.save();
+
+      let auction = await Auction.findById(req.params.auctionId);
+
+      if (auction) {
+        auction.attachments.push(attachment._id);
+        auction = await auction.save();
+      }
+
+      res.send({
+        attachment,
+        responseCode: "00",
+        responseDescription: "Attachment Created Successfully",
+      });
+    } catch (ex) {
+      console.log(ex.message);
+    }
+  }
+);
 
 router.patch(
   "/auctions/supplier/EditsaveAuctionDraft/:id",
@@ -1743,7 +1860,7 @@ router.delete("/company/deleteTag/:id", async (req, res) => {
 
 /*******
  *
- * SUppliers Endpoints
+ * Suppliers Endpoints
  * */
 
 router.post(

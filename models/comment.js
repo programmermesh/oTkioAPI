@@ -12,6 +12,10 @@ const Comment = mongoose.model(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
     },
+    auctionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Auction",
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

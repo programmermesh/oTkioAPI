@@ -1321,7 +1321,7 @@
         ]
       }
     },
-    "/api/buyer/company/addAuction": {
+    "/api/buyer/company/auctions/addAuction": {
       "post": {
         "tags": ["Buyer"],
         "summary": "Create an Auction and sent notification to seller for the company in the system",
@@ -1471,6 +1471,72 @@
             "schema": {
               "$ref": "#/definitions/auction"
             }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/auctions/addComment/{auctionId}": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Add comment to and auction",
+        "parameters": [
+          {
+            "name": "auctionId",
+            "in": "path",
+            "description": "auction to be commented on"
+          },
+          {
+            "name": "comment",
+            "in": "body",
+            "description": "comment to be added",
+            "schema": {
+              "$ref": "#/definitions/addComment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/buyer/company/auction/addAttachment/{auctionId}": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "add attachment to an auction",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "project to be commented on",
+            "schema": {
+              "$ref": "#/definitions/addComment"
+            }
+          },
+          {
+            "name": "documents",
+            "in": "formData",
+            "type": "file",
+            "description": "item documents to be updated",
+            "schema": {
+              "consumes": ["multipart/form-data"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
           }
         },
         "security": [
