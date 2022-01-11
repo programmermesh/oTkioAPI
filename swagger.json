@@ -1340,7 +1340,7 @@
             "in": "body",
             "description": "new auction to be craated",
             "schema": {
-              "$ref": "#/definitions/auction",
+              "$ref": "#/definitions/addAuction",
               "consumes": ["application/json"]
             }
           }
