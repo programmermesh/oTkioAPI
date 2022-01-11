@@ -1415,11 +1415,6 @@
         "summary": "delete an auction from a company",
         "parameters": [
           {
-            "name": "companyId",
-            "in": "path",
-            "description": "id of company from which auction is to be deleted"
-          },
-          {
             "name": "auctionId",
             "in": "path",
             "description": "id of auction to be deleted"
@@ -1427,10 +1422,7 @@
         ],
         "responses": {
           "200": {
-            "description": "a single auction document",
-            "schema": {
-              "$ref": "#/definitions/auction"
-            }
+            "description": "Successful"
           }
         },
         "security": [
@@ -1446,31 +1438,14 @@
         "summary": "delete an auction from a company",
         "parameters": [
           {
-            "name": "companyId",
-            "in": "path",
-            "description": "id of company from which auction is to be deleted"
-          },
-          {
             "name": "auctionId",
             "in": "path",
             "description": "id of auction to be deleted"
-          },
-          {
-            "name": "auction",
-            "in": "body",
-            "description": "new auction to be craated",
-            "schema": {
-              "$ref": "#/definitions/auction",
-              "consumes": ["application/json"]
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "a single auction document",
-            "schema": {
-              "$ref": "#/definitions/auction"
-            }
+            "description": "Successful"
           }
         },
         "security": [
